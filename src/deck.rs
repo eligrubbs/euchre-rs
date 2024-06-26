@@ -1,6 +1,6 @@
 use crate::card::*;
+use std::fmt;
 
-#[derive(Debug)]
 pub struct Deck {
     cards: Vec<Card>
 }
@@ -10,6 +10,16 @@ impl Deck {
         Self {
             cards: create_all_card_combos()
         }
+    }
+}
+
+impl fmt::Display for Deck {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Deck {{ ");
+        for card in &self.cards {
+            write!(f, "{}, ", card);
+        }
+        write!(f, "}}")
     }
 }
 

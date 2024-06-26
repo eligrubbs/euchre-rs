@@ -24,7 +24,7 @@ pub fn run() {
             The Dealer is player {:?}", dealer_ind);
 
     let deck: Deck = Deck::new();
-    println!("The deck is: {:?}", deck);
+    println!("The deck is: {}", deck);
 
 }
 
