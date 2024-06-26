@@ -1,3 +1,4 @@
+
 fn main() {
-    println!("This is Euchre!");
+    euchre::run();
 }
