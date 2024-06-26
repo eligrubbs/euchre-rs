@@ -1,5 +1,6 @@
 use crate::card::*;
 use std::fmt;
+use rand::seq::SliceRandom;
 
 pub struct Deck {
     cards: Vec<Card>
@@ -11,13 +12,17 @@ impl Deck {
             cards: create_all_card_combos()
         }
     }
+
+    pub fn shuffle(&mut self) {
+        self.cards.shuffle(&mut rand::thread_rng());
+    }
 }
 
 impl fmt::Display for Deck {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "Deck {{ ");
+        write!(f, "Deck {{ ").ok();
         for card in &self.cards {
-            write!(f, "{}, ", card);
+            write!(f, "{}, ", card).ok();
         }
         write!(f, "}}")
     }
