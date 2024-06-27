@@ -16,6 +16,11 @@ impl Deck {
     pub fn shuffle(&mut self) {
         self.cards.shuffle(&mut rand::thread_rng());
     }
+
+    pub fn deal_n_cards(&mut self, num: usize) -> Vec<Card> {
+        let at: usize = self.cards.len() - num;
+        self.cards.split_off(at)
+    }
 }
 
 impl fmt::Display for Deck {

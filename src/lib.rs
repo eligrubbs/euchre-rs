@@ -11,24 +11,28 @@ use deck::Deck;
 pub fn run() {
     println!("This is Euchre!");
 
+    let mut deck: Deck = Deck::new();
+    deck.shuffle();
+
     let players: Vec<Player> = vec![
-        Player {strategy: Strategy::Human},
-        Player {strategy: Strategy::Random},
-        Player {strategy: Strategy::Random},
-        Player {strategy: Strategy::Random}
+        Player {strategy: Strategy::Human,  hand: deck.deal_n_cards(5)},
+        Player {strategy: Strategy::Random, hand: deck.deal_n_cards(5)},
+        Player {strategy: Strategy::Random, hand: deck.deal_n_cards(5)},
+        Player {strategy: Strategy::Random, hand: deck.deal_n_cards(5)}
     ];
 
     let dealer_ind: u8 = determine_dealer();
 
+    let p1_strat: &Strategy = & players[usize::from(dealer_ind)].strategy;
+
     println!("Here is the lineup: \n\n\
             You are player 0 \n\
-            The Dealer is player {:?}, they are a {} Player.",
+            The Dealer is player {:?}, they are a {} Player.\n",
             dealer_ind,
-            players[usize::from(dealer_ind)].strategy);
+            p1_strat);
 
-    let mut deck: Deck = Deck::new();
-    deck.shuffle();
-    println!("The deck is: {}", deck);
+
+    println!("Your hand is: {}", players[0]);
 
 }
 
