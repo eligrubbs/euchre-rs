@@ -19,6 +19,8 @@ impl fmt::Display for Strategy {
 pub struct Player {
     pub strategy: Strategy,
     pub hand: Vec<Card>,
+    id: u8,
+    partner_id: u8,
 }
 
 impl fmt::Display for Player {
@@ -28,5 +30,29 @@ impl fmt::Display for Player {
             write!(f, "{}, ", card).ok();
         }
         write!(f, "}}")
+    }
+}
+
+impl Player {
+    pub fn new(strat: Strategy, hand: Vec<Card>, id: u8) -> Player{
+        Player {
+            strategy: strat,
+            hand: hand,
+            id: id,
+            partner_id: (id + 2) % 4
+        }
+
+    }
+
+    pub fn get_id(&self) -> &u8 {
+        &self.id
+    }
+
+    pub fn get_partner_id(&self) -> &u8 {
+        &self.partner_id
+    }
+
+    pub fn get_strategy(&self) -> &Strategy{
+        &self.strategy
     }
 }

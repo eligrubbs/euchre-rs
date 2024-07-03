@@ -15,10 +15,10 @@ pub fn run() {
     deck.shuffle();
 
     let players: Vec<Player> = vec![
-        Player {strategy: Strategy::Human,  hand: deck.deal_n_cards(5)},
-        Player {strategy: Strategy::Random, hand: deck.deal_n_cards(5)},
-        Player {strategy: Strategy::Random, hand: deck.deal_n_cards(5)},
-        Player {strategy: Strategy::Random, hand: deck.deal_n_cards(5)}
+        Player::new(Strategy::Human,  deck.deal_n_cards(5), 0),
+        Player::new(Strategy::Random,  deck.deal_n_cards(5), 1),
+        Player::new(Strategy::Random,  deck.deal_n_cards(5), 2),
+        Player::new(Strategy::Random,  deck.deal_n_cards(5), 3),
     ];
 
     let dealer_ind: u8 = determine_dealer();
