@@ -3,6 +3,7 @@ use std::fmt;
 use self::Suit::*;
 use self::Rank::*;
 
+#[derive(Clone)]
 pub struct Card {
     pub suit: Suit,
     pub rank: Rank,

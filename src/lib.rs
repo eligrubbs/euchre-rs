@@ -6,6 +6,7 @@ use player::{Player, Strategy};
 pub mod card;
 pub mod deck;
 use deck::Deck;
+pub mod game;
 
 /// Function to run Euchre.
 pub fn run() {
@@ -21,7 +22,7 @@ pub fn run() {
         Player::new(Strategy::Random,  deck.deal_n_cards(5), 3),
     ];
 
-    let dealer_ind: u8 = determine_dealer();
+    let dealer_ind: u8 = 6;
 
     let p1_strat: &Strategy = & players[usize::from(dealer_ind)].strategy;
 
@@ -36,7 +37,3 @@ pub fn run() {
 
 }
 
-pub fn determine_dealer() -> u8 {
-    let mut rng: ThreadRng = rand::thread_rng();
-    rng.gen_range(0..=3)
-}
