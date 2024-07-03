@@ -81,7 +81,7 @@ mod tests {
 
     #[test]
     fn print_suits() {
-        let mut result = String::new();
+        let mut result: String = String::new();
         for suit in Suit::iterator() {
             write!(result, "{}", suit).expect("Something wrong");
         }
@@ -90,10 +90,20 @@ mod tests {
 
     #[test]
     fn print_ranks() {
-        let mut result = String::new();
+        let mut result: String = String::new();
         for rank in Rank::iterator() {
             write!(result, "{}", rank).expect("Something wrong");
         }
         assert_eq!(result, "9TJQKA");
+    }
+
+    #[test]
+    fn print_cards() {
+        for suit in Suit::iterator() {
+            for rank in Rank::iterator() {
+                let card: Card = Card {suit: suit.clone(), rank: rank.clone()};
+                assert_eq!(format!("{}{}", suit, rank), format!("{}", card));
+            }
+        }
     }
 }
