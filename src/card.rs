@@ -72,3 +72,28 @@ impl fmt::Display for Rank {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use std::fmt::Write;
+    use super::*;
+
+
+    #[test]
+    fn print_suits() {
+        let mut result = String::new();
+        for suit in Suit::iterator() {
+            write!(result, "{}", suit).expect("Something wrong");
+        }
+        assert_eq!(result, "SCHD");
+    }
+
+    #[test]
+    fn print_ranks() {
+        let mut result = String::new();
+        for rank in Rank::iterator() {
+            write!(result, "{}", rank).expect("Something wrong");
+        }
+        assert_eq!(result, "9TJQKA");
+    }
+}
