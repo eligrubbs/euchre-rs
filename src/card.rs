@@ -1,5 +1,8 @@
+use std::collections::HashMap;
 use std::slice::Iter;
 use std::fmt;
+use std::str::FromStr;
+use crate::game::Action;
 use self::Suit::*;
 use self::Rank::*;
 
@@ -17,7 +20,7 @@ impl fmt::Display for Card {
 
 
 /// Idea to iterate through options from: https://stackoverflow.com/a/21376984
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub enum Suit {
     Spades,
     Clubs,
@@ -44,7 +47,7 @@ impl fmt::Display for Suit {
 }
 
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub enum Rank {
     Nine,
     Ten,
@@ -73,6 +76,43 @@ impl fmt::Display for Rank {
         }
     }
 }
+
+pub trait EuchreCard {
+    fn is_left(&self, trump: &Suit) -> bool;
+    fn is_right(&self, trump: &Suit) -> bool;
+    fn call_action(&self) -> Action;
+    fn discard_action(&self) -> Action;
+    fn play_action(&self) -> Action;
+}
+
+impl EuchreCard for Card {
+    fn is_left(&self, trump: &Suit) -> bool {
+        let convert: HashMap<Suit, Suit> = HashMap::from([
+            (Suit::Diamonds, Suit::Hearts),
+            (Suit::Hearts, Suit::Diamonds),
+            (Suit::Clubs, Suit::Spades),
+            (Suit::Spades, Suit::Clubs),
+        ]);
+        self.rank == Rank::Jack && convert.get(&self.suit).unwrap() == trump
+    }
+
+    fn is_right(&self, trump: &Suit) -> bool {
+        self.suit == *trump && self.rank == Rank::Jack
+    }
+
+    fn call_action(&self) -> Action {
+        Action::from_str(format!("{}Call",self.to_string()).as_str()).unwrap()
+    }
+
+    fn discard_action(&self) -> Action {
+        Action::from_str(format!("{}Discard",self.to_string()).as_str()).unwrap()
+    }
+
+    fn play_action(&self) -> Action {
+        Action::from_str(self.to_string().as_str()).unwrap()
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

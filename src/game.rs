@@ -1,17 +1,20 @@
 use std::collections::HashMap;
-use std::hash::Hash;
+use strum_macros::EnumString;
+use std::str::FromStr;
 
 use rand::Rng;
 use rand::prelude::ThreadRng;
 
 use crate::card::Card;
 use crate::card::Suit;
+use crate::card::EuchreCard;
 use crate::deck::Deck;
 use crate::player::{Player, Strategy};
 
 pub struct EuchreGame {
     payoffs: Option<(u8,u8,u8,u8)>,
     players: Vec<Player>,
+    current_player: u8,
     dealer_id: u8,
     flipped_card: Card,
     calling_player: Option<u8>,
@@ -20,6 +23,8 @@ pub struct EuchreGame {
     center: Option<Vec<Card>>,
     order: Vec<u8>,
     player_tricks: HashMap<u8, u8>,
+    trump: Option<Suit>,
+    led_suit: Option<Suit>,
     game_over: bool,
 }
 
@@ -53,17 +58,22 @@ impl EuchreGame {
         p_tricks.insert(2,0);
         p_tricks.insert(3,0);
 
+        let curr_player = (dealer_ind + 1) % 4;
+
         EuchreGame {
             payoffs: None,
             players: players,
+            current_player: curr_player,
             dealer_id: dealer_ind,
             flipped_card: flipped_card,
             calling_player: None,
             flipped_choice: None,
             previous_played: player_previously,
             center: None,
-            order: Self::order_starting_from((dealer_ind + 1)%4),
+            order: Self::order_starting_from(curr_player),
             player_tricks: p_tricks,
+            trump: None,
+            led_suit: None,
             game_over: false,
         }
     }
@@ -73,6 +83,47 @@ impl EuchreGame {
         vec![player, (player + 1)%4, (player+2)%4, (player+3)%4]
     }
 
+    fn gen_legal_actions(&self) -> Vec<Action> {
+        let hand: &Vec<Card> = &self.players.get(usize::from(self.current_player)).unwrap().hand;
+
+        if hand.len() == 6{
+            return hand.into_iter()
+            .map(|x: &Card| x.discard_action()).collect();
+        } 
+        
+        if self.trump.is_none() {
+
+            if self.flipped_choice.is_none() {
+                return vec![Action::Pick, Action::Pass]
+
+            } else {
+                let mut actions: Vec<Action> = hand.into_iter()
+                .filter(|card| card.suit != self.flipped_card.suit)
+                .map(|card| card.call_action())
+                .collect();
+
+                if self.current_player != self.dealer_id {
+                    actions.push(Action::Pass);
+                }
+                return actions
+            }
+        }
+
+        if self.led_suit.is_none() {
+            return hand.into_iter()
+            .map(|x: &Card| x.play_action()).collect();
+        }
+
+        let follow_actions: Vec<Action> = hand.into_iter()
+        .filter(|x| (x.suit == *self.led_suit.as_ref().unwrap() && !x.is_left(&self.trump.as_ref().unwrap())) ||
+                            (x.is_left(&self.trump.as_ref().unwrap()) && self.led_suit == self.trump)  
+               ).map(|x| x.play_action()).collect();
+        if follow_actions.len() > 0{
+               return follow_actions
+        }
+        
+        hand.into_iter().map(|x| x.play_action()).collect()
+    }
 }
 
 fn determine_dealer() -> u8 {
@@ -112,14 +163,15 @@ pub enum FlippedChoice {
 
 pub struct Played(u8, Card);
 
-
+// idea from: https://stackoverflow.com/a/62711168
+#[derive(EnumString)]
 pub enum Action {
     Pass,
     Pick,
-    CallHearts,
-    CallDiamonds,
-    CallSpades,
-    CallClubs,
+    CallH,
+    CallD,
+    CallS,
+    CallC,
     HAPlay,
     HKPlay,
     HQPlay,
