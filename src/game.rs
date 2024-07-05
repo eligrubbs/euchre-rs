@@ -121,7 +121,7 @@ impl EuchreGame {
         if follow_actions.len() > 0{
                return follow_actions
         }
-        
+
         hand.into_iter().map(|x| x.play_action()).collect()
     }
 }
