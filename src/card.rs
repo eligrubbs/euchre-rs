@@ -1,6 +1,6 @@
 
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Rank {
     Nine,
     Ten,
@@ -10,7 +10,7 @@ pub enum Rank {
     Ace
 }
 
-#[derive(Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Suit {
     Diamonds,
     Hearts,
@@ -24,12 +24,19 @@ pub struct Card {
 }
 
 impl Card {
+    /// Creates new `Card` with specified suit and rank
     pub fn new(suit: Suit, rank: Rank) -> Card {
         Card {suit: suit, rank: rank}
     }
 
+    /// returns a clone of this cards `Suit`
     pub fn suit(&self) -> Suit {
         self.suit.clone()
+    }
+
+    /// returns a clone of this cards `Rank`
+    pub fn rank(&self) -> Rank {
+        self.rank.clone()
     }
 }
 
@@ -40,6 +47,8 @@ mod tests {
     #[test]
     fn create_card() {
         let card: Card = Card::new(Suit::Hearts, Rank::Ten);
-        assert_eq(Suit::Hearts)
+        assert_eq!(Suit::Hearts, card.suit());
+        assert_eq!(Rank::Ten, card.rank());
+
     }
 }
