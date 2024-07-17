@@ -98,7 +98,7 @@ impl EuchreGame {
         } else if (action as u8) < 6 { // Call
             self.perform_call_action(action);
         } else if (action as u8) > 29 { // Discard
-
+            self.perform_discard_action(action);
         } else {
 
         // Play
@@ -166,7 +166,7 @@ impl EuchreGame {
     /// Changes game state to reflect taking a `Call` action.  
     /// 1. Sets trump to suit that is called
     /// 2. Sets current player to player left of dealer
-    fn perform_call_action(&mut self, action:Action) {
+    fn perform_call_action(&mut self, action: Action) {
         let trump: Suit = match action {
             Action::CallH => Suit::Hearts,
             Action::CallC => Suit::Clubs,
@@ -176,6 +176,21 @@ impl EuchreGame {
         };
         self.trump = Some(trump);
         self.curr_player_id = (self.dealer_id + 1) % 4;
+    }
+
+    /// Changes game state to reflect taking a `Discard` action.
+    /// 1. set current player to player left of dealer (also current player)
+    fn perform_discard_action(&mut self, action: Action) {
+        let card_to_drop: Card = Action::card_actions_to_card(action).unwrap();
+    
+        let player: &Player = self.player_ref(self.curr_player_id);
+        for (i, card) in player.hand_ref().iter().enumerate() {
+            if card == &card_to_drop {
+                player.hand_ref().remove(i);
+                break
+            }
+        }
+        self.increment_player();
     }
 
 }
