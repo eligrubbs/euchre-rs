@@ -96,7 +96,7 @@ impl EuchreGame {
         } else if action == Action::Pass { // Pass
             self.perform_pass_action();
         } else if (action as u8) < 6 { // Call
-
+            self.perform_call_action(action);
         } else if (action as u8) > 29 { // Discard
 
         } else {
@@ -161,6 +161,21 @@ impl EuchreGame {
             self.flipped_choice = Some(FlippedChoice::TurnedDown);
         }
         self.increment_player();
+    }
+
+    /// Changes game state to reflect taking a `Call` action.  
+    /// 1. Sets trump to suit that is called
+    /// 2. Sets current player to player left of dealer
+    fn perform_call_action(&mut self, action:Action) {
+        let trump: Suit = match action {
+            Action::CallH => Suit::Hearts,
+            Action::CallC => Suit::Clubs,
+            Action::CallD => Suit::Diamonds,
+            Action::CallS => Suit::Spades,
+            _ => {panic!("Invalid action to perform call action: {:?}", action)}
+        };
+        self.trump = Some(trump);
+        self.curr_player_id = (self.dealer_id + 1) % 4;
     }
 
 }
