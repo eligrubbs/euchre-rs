@@ -4,6 +4,7 @@ use rand::Rng;
 use rand::prelude::ThreadRng;
 
 use crate::player::Player;
+use crate::utils::Action;
 
 pub struct EuchreGame {
     is_over: bool,
@@ -28,6 +29,13 @@ impl EuchreGame {
         self.is_over
     }
 
+    /// Update the game state based on the passed in `Action`.
+    pub fn step(&self, action: Action) {
+        if action == Action::Pick {
+
+        }
+    }
+
 }
 
 /// Either return the passed in `Some(u8)`, panicing if greater than 3, 
@@ -50,10 +58,10 @@ mod tests {
 
     #[test]
     fn create_game() {
-        let players: (Player, Player, Player, Player) = (Player::new("bob"), 
-                                                         Player::new("bob"),
-                                                         Player::new("bob"),
-                                                         Player::new("bob"));
+        let players: (Player, Player, Player, Player) = (Player::new(0), 
+                                                         Player::new(1),
+                                                         Player::new(2),
+                                                         Player::new(3));
 
         let game: EuchreGame = EuchreGame::new(false, players, Some(0));
     

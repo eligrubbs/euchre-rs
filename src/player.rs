@@ -1,14 +1,20 @@
-
+use crate::card::Card;
 
 pub struct Player {
-    name: String,
+    player_id: u8,
+    hand: Vec<Card>,
 }
 
 impl Player {
-    pub fn new(name: &str) -> Player {
+    pub fn new(p_id: u8) -> Player {
         Player {
-            name: name.to_string(),
+            player_id: p_id,
+            hand: vec![],
         }
+    }
+
+    pub fn add_cards(&mut self, cards: &mut Vec<Card>) {
+        self.hand.append(cards)
     }
 }
 
@@ -18,8 +24,8 @@ mod tests {
 
     #[test]
     fn make_player() {
-        let play: Player = Player::new("bob");
-        let real_name: String = "bob".to_string();
-        assert_eq!(play.name, real_name)
+        let play: Player = Player::new(2);
+        let real_id: u8 = 2;
+        assert_eq!(play.player_id, real_id)
     }
 }
