@@ -1,13 +1,13 @@
 use strum_macros::EnumIter;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, EnumIter)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, EnumIter)]
 pub enum Rank {
-    Nine,
-    Ten,
-    Jack,
-    Queen,
-    King,
-    Ace
+    Nine = 9,
+    Ten = 10,
+    Jack = 11,
+    Queen = 12,
+    King = 13,
+    Ace = 14
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, EnumIter)]
@@ -30,17 +30,17 @@ impl Card {
         Card {suit: suit, rank: rank}
     }
 
-    /// returns a clone of this cards `Suit`
+    /// Returns a clone of this cards `Suit`
     pub fn suit(&self) -> Suit {
         self.suit.clone()
     }
 
-    /// returns a clone of this cards `Rank`
+    /// Returns a clone of this cards `Rank`
     pub fn rank(&self) -> Rank {
         self.rank.clone()
     }
 
-    /// returns whether this card is the left bower
+    /// Returns whether this card is the left bower
     /// given a trump suit
     pub fn is_left(&self, trump: Suit) -> bool {
         self == &Card::new(match trump {
@@ -51,10 +51,31 @@ impl Card {
         }, Rank::Jack)
     }
 
-    /// returns whether this card is the right bower
+    /// Returns whether this card is the right bower
     /// given a trump suit
     pub fn is_right(&self, trump: Suit) -> bool {
         self == &Card::new(trump, Rank::Jack)
+    }
+
+    /// Determines if `self` is lower than other, given trump.  
+    /// Assumes that `self` is the led_suit (remember the left's suit is trump).
+    pub fn is_lower(&self, trump: Suit, other: Card) -> bool {
+        let eff_suit: Suit = if self.is_left(trump) {trump} else {self.suit()};
+        let o_eff_suit: Suit = if other.is_left(trump) {trump} else {other.suit()};
+
+        if eff_suit == o_eff_suit {
+            // If here, and both bowers are being compared, there will be an equality on rank
+            // so, looking at self.is_right will break that tie
+            if self.rank() > other.rank() || self.is_right(trump) {
+                false
+            } else {
+                true
+            }
+        } else if o_eff_suit == trump {
+            true
+        } else {
+            false
+        }
     }
 }
 
@@ -84,5 +105,16 @@ mod tests {
         assert!(Card::new(Suit::Clubs, Rank::Jack).is_right(Suit::Clubs));
         assert!(!Card::new(Suit::Clubs, Rank::Nine).is_right(Suit::Spades));
         assert!(!Card::new(Suit::Diamonds, Rank::Jack).is_right(Suit::Spades));
+    }
+
+    #[test]
+    fn is_lower_for_bowers() {
+        let trump: Suit = Suit::Spades;
+        let o_right: Card = Card::new(Suit::Spades, Rank::Jack);
+        let o_left: Card = Card::new(Suit::Clubs, Rank::Jack);
+        assert!(Card::new(Suit::Diamonds, Rank::Ace).is_lower(trump, o_right));
+        assert!(Card::new(Suit::Diamonds, Rank::Ace).is_lower(trump, o_left));
+        assert!(o_left.is_lower(trump, o_right));
+        assert!(!o_right.is_lower(trump, o_left));
     }
 }
