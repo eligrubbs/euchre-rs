@@ -19,7 +19,7 @@ pub struct EuchreGame {
     flipped_card: Card,
     calling_player: Option<u8>,
     flipped_choice: Option<FlippedChoice>,
-    previous_played: HashMap<u8, Vec<Card>>,
+    previous_played: (Vec<Card>, Vec<Card>, Vec<Card>, Vec<Card>),
     center: Option<Vec<Card>>,
     order: Vec<u8>,
     player_tricks: HashMap<u8, u8>,
@@ -46,12 +46,6 @@ impl EuchreGame {
 
         let flipped_card: Card = deck.deal_n_cards(1).remove(0);
 
-        let mut player_previously: HashMap<u8, Vec<Card>> = HashMap::new();
-        player_previously.insert(0, vec![]);
-        player_previously.insert(1, vec![]);
-        player_previously.insert(2, vec![]);
-        player_previously.insert(3, vec![]);
-
         let mut p_tricks: HashMap<u8, u8> = HashMap::new();
         p_tricks.insert(0,0);
         p_tricks.insert(1,0);
@@ -68,7 +62,7 @@ impl EuchreGame {
             flipped_card: flipped_card,
             calling_player: None,
             flipped_choice: None,
-            previous_played: player_previously,
+            previous_played: (vec![], vec![], vec![], vec![]),
             center: None,
             order: Self::order_starting_from(curr_player),
             player_tricks: p_tricks,
@@ -124,6 +118,25 @@ impl EuchreGame {
 
         hand.into_iter().map(|x| x.play_action()).collect()
     }
+
+    /// Gets the current scoped game state.  
+    /// 
+    /// Only contains information that the current actor would know
+    fn get_scoped_state(&self) -> ScopedGameState {
+        ScopedGameState {
+            current_actor: self.current_player,
+            hand: self.players[usize::from(self.current_player)].hand.clone(),
+            dealer_actor: self.dealer_id,
+            flipped_card: self.flipped_card.clone(),
+            order: self.order.clone(),
+            previous_played: self.previous_played.clone(),
+            trump: self.trump.clone(),
+            calling_actor: self.calling_player.clone(),
+            flipped_choice: self.flipped_choice.clone(),
+            led_suit: self.led_suit.clone(),
+            center: self.center.clone(),
+        }
+    }
 }
 
 fn determine_dealer() -> u8 {
@@ -156,6 +169,7 @@ pub struct ScopedGameState {
 
 }
 
+#[derive(Clone)]
 pub enum FlippedChoice {
     PickedUp,
     TurnedDown,
