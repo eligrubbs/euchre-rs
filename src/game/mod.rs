@@ -3,7 +3,7 @@ use rand::prelude::ThreadRng;
 use scoped_state::ScopedGameState;
 
 use crate::player::Player;
-use crate::card::{Card, Suit};
+use crate::card::{self, Card, Suit};
 use crate::utils::{Action, FlippedChoice};
 use crate::dealer::Dealer;
 use crate::judger::Judger;
@@ -99,12 +99,11 @@ impl EuchreGame {
             self.perform_call_action(action);
         } else if (action as u8) > 29 { // Discard
             self.perform_discard_action(action);
-        } else {
+        } else {// Play
+            self.perform_play_card(action);
 
-        // Play
-    
             if self.center.as_ref().unwrap().len() == 4 {
-
+                
             }
 
         }
@@ -180,6 +179,7 @@ impl EuchreGame {
 
     /// Changes game state to reflect taking a `Discard` action.
     /// 1. set current player to player left of dealer (also current player)
+    /// 2. Remove specified card from players hand
     fn perform_discard_action(&mut self, action: Action) {
         let card_to_drop: Card = Action::card_actions_to_card(action).unwrap();
     
@@ -190,9 +190,42 @@ impl EuchreGame {
                 break
             }
         }
+
         self.increment_player();
     }
 
+    /// Changes game state to reflect taking a `Play` action.  
+    /// 1. set current player to player left of current player
+    /// 2. removes played card from players hand
+    /// 3. adds played card to center
+    /// 4. if first played card, sets led_suit
+    fn perform_play_card(&mut self, action: Action) {
+        let card_to_play: Card = Action::card_actions_to_card(action).unwrap();
+
+        let player: &Player = self.player_ref(self.curr_player_id);
+        for (i, card) in player.hand_ref().iter().enumerate() {
+            if card == &card_to_play {
+                player.hand_ref().remove(i);
+                break
+            }
+        }
+
+        if self.center.is_none() {
+            self.center = Some(vec![]);
+            self.led_suit = 
+                if card_to_play.is_left(self.trump.unwrap()) {
+                    Some(self.trump.unwrap())
+                } else {
+                    Some(card_to_play.suit())
+                };
+        } else {
+            self.center.as_mut().unwrap().push(card_to_play);
+        }
+    
+        self.previous_played[usize::from(self.curr_player_id)].push(card_to_play);
+
+        self.increment_player();
+    }
 }
 
 /// Either return the passed in `Some(u8)`, panicing if greater than 3, 
