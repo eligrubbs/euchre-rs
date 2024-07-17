@@ -90,11 +90,11 @@ impl EuchreGame {
 
     /// Update the game state based on the passed in `Action`.
     /// Returns the scoped game state and the current player's id
-    pub fn step(&self, action: Action) -> (ScopedGameState, u8){
+    pub fn step(&mut self, action: Action) -> (ScopedGameState, u8){
         if action == Action::Pick { // Pick
-
+            self.perform_pick_action();
         } else if action == Action::Pass { // Pass
-
+            self.perform_pass_action();
         } else if (action as u8) < 6 { // Call
 
         } else if (action as u8) > 29 { // Discard
@@ -129,13 +129,38 @@ impl EuchreGame {
     }
 
     /// updates `current_player_id` to hold id of player
-    /// whose turn it is.
+    /// who sits left of old current player.
     fn increment_player(&mut self) {
         self.curr_player_id = self.see_next_player();
     }
 
     fn player_ref(&self, id: u8) -> &Player {
         &self.players[usize::from(id)]
+    }
+
+    /// Changes game state to reflect taking the `Pick` action.  
+    /// 1. Dealer has `flipped_card` added to hand
+    /// 2. Trump is set
+    /// 3. Current player is changed to be the dealer
+    /// 4. `flipped_choice` is set to `PickedUp`
+    /// 5. The player who ordered up trump is recorded
+    fn perform_pick_action(&mut self) {
+        let dealer_player = self.player_ref(self.dealer_id);
+        dealer_player.hand_ref().push(self.flipped_card);
+        self.trump = Some(self.flipped_card.suit());
+        self.flipped_choice = Some(FlippedChoice::PickedUp);
+        self.calling_player_id = Some(self.curr_player_id);
+        self.curr_player_id = self.dealer_id;
+    } 
+
+    /// Changes game state to reflect taking the `Pass` action.
+    /// 1. Increment current player id by 1
+    /// 2. If the player was the dealer, turn down the flipped card.
+    fn perform_pass_action(&mut self) {
+        if self.curr_player_id == self.dealer_id {
+            self.flipped_choice = Some(FlippedChoice::TurnedDown);
+        }
+        self.increment_player();
     }
 
 }
