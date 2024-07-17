@@ -19,8 +19,8 @@ impl Dealer {
         self.euchre_deck.shuffle(&mut rand::thread_rng());
     }
 
-    pub fn deal_n_cards(&mut self, player: &mut Player, num: usize) {
-        let at: usize = self.euchre_deck.len() - num;
+    pub fn deal_cards(&mut self, player: &mut Player) {
+        let at: usize = self.euchre_deck.len() - 5;
         player.add_cards(&mut self.euchre_deck.split_off(at));
     }
 
