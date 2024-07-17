@@ -3,7 +3,7 @@ use rand::prelude::ThreadRng;
 use scoped_state::ScopedGameState;
 
 use crate::player::Player;
-use crate::card::{self, Card, Suit};
+use crate::card::{Card, Suit};
 use crate::utils::{Action, FlippedChoice};
 use crate::dealer::Dealer;
 use crate::judger::Judger;
@@ -103,7 +103,7 @@ impl EuchreGame {
             self.perform_play_card(action);
 
             if self.center.as_ref().unwrap().len() == 4 {
-                
+                self.end_trick();
             }
 
         }
@@ -133,8 +133,8 @@ impl EuchreGame {
         self.curr_player_id = self.see_next_player();
     }
 
-    fn player_ref(&self, id: u8) -> &Player {
-        &self.players[usize::from(id)]
+    fn player_ref(&mut self, id: u8) -> &mut Player {
+        &mut self.players[usize::from(id)]
     }
 
     /// Changes game state to reflect taking the `Pick` action.  
@@ -225,6 +225,24 @@ impl EuchreGame {
         self.previous_played[usize::from(self.curr_player_id)].push(card_to_play);
 
         self.increment_player();
+    }
+
+    /// judges the center cards and increments players trick counts.
+    /// 1. Sets current player as winner of trick.
+    /// 2. Sets to None center, led_suit
+    /// 3. resets order starting from winner of trick.
+    fn end_trick(&mut self) {
+        let winner_id = self.judger.judge_trick(
+                                self.trump.unwrap(),
+                                self.center.as_ref().unwrap(),
+                                &self.order);
+        self.player_ref(winner_id).award_trick();
+        self.curr_player_id = winner_id;
+
+        self.center = None;
+        self.order = Self::order_starting_from(winner_id);
+        self.led_suit = None;
+
     }
 }
 
