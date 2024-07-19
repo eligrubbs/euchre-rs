@@ -63,7 +63,7 @@ pub enum Action {
 
 impl Action {
     /// Map all <Card>Play and <Card>Discard actions to the <Card> they refer to.
-    pub fn card_actions_to_card(action: Action) -> Result<Card, String> {
+    pub fn action_to_card(action: Action) -> Result<Card, String> {
         // the number % 6 returns the rank
         // 0 1 2 3 4 5
         // A K Q J T 9
@@ -98,6 +98,27 @@ impl Action {
         Ok(Card::new(suit, rank))
     }
 
+    /// Map a Card to either a play or discard action.
+    pub fn card_to_action(card: &Card, is_play: bool) -> Action {
+        let suit_num: u8 = match card.suit() {
+            Suit::Hearts => 1,
+            Suit::Diamonds => 2,
+            Suit::Spades => 3,
+            Suit::Clubs => 4,
+        };
+        let rank_num: u8 = match card.rank() {
+            Rank::Ace => 0,
+            Rank::King => 1,
+            Rank::Queen => 2,
+            Rank::Jack => 3,
+            Rank::Ten => 4,
+            Rank::Nine => 5,
+        };
+        let discard_offset: u8 = if is_play {0} else {24};
+        let num: u8 = rank_num + (suit_num * 6) + discard_offset;
+        Action::from_integer(num).unwrap()
+    }
+
     pub fn from_integer(val: u8) -> Result<Action, String> {
         for act in Action::iter() {
             if act as u8 == val {
@@ -109,7 +130,7 @@ impl Action {
 }
 
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Eq, PartialEq)]
 pub enum FlippedChoice {
     PickedUp,
     TurnedDown,
@@ -133,10 +154,10 @@ mod tests {
 
     #[test]
     fn action_to_card() {
-        assert_eq!(Action::card_actions_to_card(Action::C9Discard).unwrap(),
-        Action::card_actions_to_card(Action::C9Play).unwrap());
+        assert_eq!(Action::action_to_card(Action::C9Discard).unwrap(),
+        Action::action_to_card(Action::C9Play).unwrap());
 
-        assert_eq!(Action::card_actions_to_card(Action::HADiscard).unwrap(),
-        Action::card_actions_to_card(Action::HAPlay).unwrap());
+        assert_eq!(Action::action_to_card(Action::HADiscard).unwrap(),
+        Action::action_to_card(Action::HAPlay).unwrap());
     }
 }

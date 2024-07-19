@@ -119,6 +119,50 @@ impl EuchreGame {
         self.curr_player_id
     }
 
+    /// Return all actions that the current player may
+    /// select based on the game state.
+    pub fn get_legal_actions(&mut self) -> Vec<Action> {
+        let hand: Vec<Card> = self.player_ref(self.curr_player_id).hand_ref();
+        let mut actions: Vec<Action> = vec![];
+        if hand.len() == 6 { // dealer must discard
+            actions = hand.iter().map(|x| Action::card_to_action(x, false)).collect();
+        
+        } else if self.trump.is_none() { // deciding trump
+            if self.flipped_choice.is_none() { // flipped_card available
+                actions = vec![Action::Pick, Action::Pass];
+            } else if self.flipped_choice.unwrap() == FlippedChoice::TurnedDown { // no flipped card, dealer can't pass
+                let turned_down_suit: u8 = match self.flipped_card.suit() {
+                    Suit::Hearts => 0,
+                    Suit::Diamonds => 1,
+                    Suit::Spades => 2,
+                    Suit::Clubs => 3,
+                };
+                let mut call_suits: Vec<Action> = vec![Action::CallH, Action::CallD, Action::CallS, Action::CallC];
+                call_suits.remove(usize::from(turned_down_suit));
+                actions = call_suits;
+                if self.get_curr_player_id() != self.dealer_id {
+                    actions.push(Action::Pass);
+                }
+            }
+
+        } else if self.led_suit.is_none() { // lead the trick
+            actions = hand.iter().map(|x| Action::card_to_action(x, true)).collect();
+        } else { // play given a led suit
+            let (t_trump, t_led) = (self.trump.unwrap(), self.led_suit.unwrap());
+            let t_acts: Vec<Action> = hand.iter()
+                          .filter(|x| (x.suit() == t_led && !x.is_left(t_trump))
+                                           || (x.suit() == t_trump && x.is_left(t_trump)))
+                          .map(|x| Action::card_to_action(x, true)).collect();
+
+            if t_acts.len() > 0 { // can follow suit
+                actions = t_acts;
+            } else { // can't follow suit
+                actions = hand.iter().map(|x| Action::card_to_action(x, true)).collect();
+            }
+        }
+        actions
+    }
+
     // player MUST be either 0, 1, 2, or 3
     fn order_starting_from(player: u8) -> Vec<u8> {
         vec![player, (player + 1)%4, (player+2)%4, (player+3)%4]
@@ -184,7 +228,7 @@ impl EuchreGame {
     /// 1. set current player to player left of dealer (also current player)
     /// 2. Remove specified card from players hand
     fn perform_discard_action(&mut self, action: Action) {
-        let card_to_drop: Card = Action::card_actions_to_card(action).unwrap();
+        let card_to_drop: Card = Action::action_to_card(action).unwrap();
     
         let player: &Player = self.player_ref(self.curr_player_id);
         for (i, card) in player.hand_ref().iter().enumerate() {
@@ -203,7 +247,7 @@ impl EuchreGame {
     /// 3. adds played card to center
     /// 4. if first played card, sets led_suit
     fn perform_play_card(&mut self, action: Action) {
-        let card_to_play: Card = Action::card_actions_to_card(action).unwrap();
+        let card_to_play: Card = Action::action_to_card(action).unwrap();
 
         let player: &Player = self.player_ref(self.curr_player_id);
         for (i, card) in player.hand_ref().iter().enumerate() {
