@@ -163,6 +163,12 @@ impl EuchreGame {
         actions
     }
 
+    /// Get rewards for the players
+    /// Will only return not None if the game is over.
+    pub fn get_rewards(&self) -> Option<Vec<u8>> {
+        if self.is_over() {Some(self.scores.as_ref().unwrap().clone())} else {None}
+    }
+
     // player MUST be either 0, 1, 2, or 3
     fn order_starting_from(player: u8) -> Vec<u8> {
         vec![player, (player + 1)%4, (player+2)%4, (player+3)%4]
