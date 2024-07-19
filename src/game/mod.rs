@@ -109,8 +109,9 @@ impl EuchreGame {
                 self.decide_is_over();
             }
         }
+        let curr_id: u8 = self.get_curr_player_id();
         let state: ScopedGameState = self.get_state();
-        (state, self.curr_player_id)
+        (state, curr_id)
     }
 
     /// Return the id of the current player
