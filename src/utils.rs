@@ -1,9 +1,9 @@
 use strum::IntoEnumIterator;
-use strum_macros::EnumIter;
+use strum_macros::{EnumIter, Display, EnumString};
 
 use crate::card::{Card, Suit, Rank};
 
-#[derive(Debug, Eq, PartialEq, PartialOrd, Copy, Clone, EnumIter)]
+#[derive(Debug, Eq, PartialEq, PartialOrd, Copy, Clone, EnumIter, Display, EnumString)]
 pub enum Action {
     Pass = 0,
     Pick = 1,
