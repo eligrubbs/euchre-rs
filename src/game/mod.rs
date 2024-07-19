@@ -12,6 +12,7 @@ pub mod scoped_state;
 
 pub struct EuchreGame {
     is_over: bool,
+    scores: Option<Vec<u8>>,
     players: Vec<Player>,
     curr_player_id: u8,
     dealer_id: u8,
@@ -49,6 +50,7 @@ impl EuchreGame {
 
         EuchreGame {
             is_over: false,
+            scores: None,
             players: players,
             dealer: Dealer::new(),
             curr_player_id: curr_p_id,
@@ -71,7 +73,7 @@ impl EuchreGame {
     }
 
     /// Get the current game state as the current player sees it.
-    pub fn get_state(&self) -> ScopedGameState {
+    pub fn get_state(&mut self) -> ScopedGameState {
         ScopedGameState {
             current_actor: self.curr_player_id,
             hand: self.player_ref(self.curr_player_id).hand_ref(),
@@ -104,8 +106,8 @@ impl EuchreGame {
 
             if self.center.as_ref().unwrap().len() == 4 {
                 self.end_trick();
+                self.decide_is_over();
             }
-
         }
         let state: ScopedGameState = self.get_state();
         (state, self.curr_player_id)
@@ -243,6 +245,27 @@ impl EuchreGame {
         self.order = Self::order_starting_from(winner_id);
         self.led_suit = None;
 
+    }
+
+    /// Decide if the game is over, and if so returns points awarded to each player.
+    /// Conditions: 
+    /// 1. If the current player has no cards in their hand
+    /// 2. Assumes that this function is only called at the end of a trick
+    fn decide_is_over(&mut self) {
+        if self.player_ref(self.curr_player_id).hand_ref().len() == 0 {
+            self.is_over = true;
+            self.scores = Some(self.judger.judge_round(
+                                        self.get_player_tricks(),
+                                        self.calling_player_id.unwrap()));
+        }
+    }
+
+    fn get_player_tricks(&self) -> Vec<u8> {
+        let mut tricks: Vec<u8> = vec![];
+        for p in self.players.as_slice() {
+            tricks.push(p.get_tricks());
+        }
+        tricks
     }
 }
 
