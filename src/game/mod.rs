@@ -74,6 +74,8 @@ impl EuchreGame {
 
     /// Get the current game state as the current player sees it.
     pub fn get_state(&mut self) -> ScopedGameState {
+        let legals: Vec<Action> = self.get_legal_actions();
+
         ScopedGameState {
             current_actor: self.curr_player_id,
             hand: self.player_ref(self.curr_player_id).hand_ref(),
@@ -87,6 +89,7 @@ impl EuchreGame {
             order: &self.order,
             center: &self.center,
             previous_played: &self.previous_played,
+            legal_actions: legals,
         }
     }
 

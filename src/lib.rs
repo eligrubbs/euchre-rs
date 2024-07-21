@@ -5,6 +5,8 @@ pub mod player;
 pub mod dealer;
 pub mod utils;
 pub mod judger;
+pub mod env;
+pub mod agent;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right

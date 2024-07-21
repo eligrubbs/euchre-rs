@@ -1,6 +1,7 @@
 
 use crate::card::{Card, Suit};
 use crate::utils::FlippedChoice;
+use crate::utils::Action;
 
 /// A struct which represents the game state from the perspective of a certain player
 pub struct ScopedGameState<'a> {
@@ -27,5 +28,8 @@ pub struct ScopedGameState<'a> {
     pub center: &'a Option<Vec<Card>>,
     // All empty if not in 2nd round; cards are only in center during 1st.
     pub previous_played: &'a Vec<Vec<Card>>,
+
+    // Should always exist
+    pub legal_actions: Vec<Action>,
 
 }

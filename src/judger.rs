@@ -1,5 +1,5 @@
 
-use crate::card::{Card, Suit, Rank};
+use crate::card::{Card, Suit};
 
 pub struct Judger {
 
