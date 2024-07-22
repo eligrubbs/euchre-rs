@@ -4,7 +4,7 @@ use crate::utils::FlippedChoice;
 use crate::utils::Action;
 
 /// A struct which represents the game state from the perspective of a certain player
-pub struct ScopedGameState<'a> {
+pub struct ScopedGameState {
     pub current_actor: u8,
     pub hand: Vec<Card>,
     pub dealer_actor: u8,
@@ -23,11 +23,11 @@ pub struct ScopedGameState<'a> {
     pub led_suit: Option<Suit>,
     
     // each round has a distinct order players make decisions in.
-    pub order: &'a Vec<u8>,
+    pub order: Vec<u8>,
     // None if no cards played yet, or in rounds 0/1
-    pub center: &'a Option<Vec<Card>>,
+    pub center: Option<Vec<Card>>,
     // All empty if not in 2nd round; cards are only in center during 1st.
-    pub previous_played: &'a Vec<Vec<Card>>,
+    pub previous_played: Vec<Vec<Card>>,
 
     // Should always exist
     pub legal_actions: Vec<Action>,

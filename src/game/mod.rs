@@ -16,7 +16,6 @@ pub struct EuchreGame {
     players: Vec<Player>,
     curr_player_id: u8,
     dealer_id: u8,
-    dealer: Dealer,
     judger: Judger,
 
     flipped_card: Card,
@@ -52,7 +51,6 @@ impl EuchreGame {
             is_over: false,
             scores: None,
             players: players,
-            dealer: Dealer::new(),
             curr_player_id: curr_p_id,
             dealer_id: deal_id,
             judger: Judger::new(),
@@ -73,12 +71,12 @@ impl EuchreGame {
     }
 
     /// Get the current game state as the current player sees it.
-    pub fn get_state(&mut self) -> ScopedGameState {
+    pub fn get_state(&self) -> ScopedGameState {
         let legals: Vec<Action> = self.get_legal_actions();
 
         ScopedGameState {
             current_actor: self.curr_player_id,
-            hand: self.player_ref(self.curr_player_id).hand_ref(),
+            hand: self.imm_player_ref(self.curr_player_id).hand_ref(),
             calling_actor: self.calling_player_id,
             dealer_actor: self.dealer_id,
             flipped_card: self.flipped_card,
@@ -86,9 +84,9 @@ impl EuchreGame {
             trump: self.trump,
             led_suit: self.led_suit,
 
-            order: &self.order,
-            center: &self.center,
-            previous_played: &self.previous_played,
+            order: self.order.clone(),
+            center: self.center.clone(),
+            previous_played: self.previous_played.clone(),
             legal_actions: legals,
         }
     }
@@ -124,8 +122,8 @@ impl EuchreGame {
 
     /// Return all actions that the current player may
     /// select based on the game state.
-    pub fn get_legal_actions(&mut self) -> Vec<Action> {
-        let hand: Vec<Card> = self.player_ref(self.curr_player_id).hand_ref();
+    pub fn get_legal_actions(&self) -> Vec<Action> {
+        let hand: Vec<Card> = self.imm_player_ref(self.curr_player_id).hand_ref();
         let mut actions: Vec<Action> = vec![];
         if hand.len() == 6 { // dealer must discard
             actions = hand.iter().map(|x| Action::card_to_action(x, false)).collect();
@@ -191,6 +189,10 @@ impl EuchreGame {
 
     fn player_ref(&mut self, id: u8) -> &mut Player {
         &mut self.players[usize::from(id)]
+    }
+
+    fn imm_player_ref(&self, id: u8) -> &Player {
+        &self.players[usize::from(id)]
     }
 
     /// Changes game state to reflect taking the `Pick` action.  
@@ -306,7 +308,7 @@ impl EuchreGame {
     /// 1. If the current player has no cards in their hand
     /// 2. Assumes that this function is only called at the end of a trick
     fn decide_is_over(&mut self) {
-        if self.player_ref(self.curr_player_id).hand_ref().len() == 0 {
+        if self.imm_player_ref(self.curr_player_id).hand_ref().len() == 0 {
             self.is_over = true;
             self.scores = Some(self.judger.judge_round(
                                         self.get_player_tricks(),
