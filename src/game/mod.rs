@@ -231,6 +231,7 @@ impl EuchreGame {
     /// Changes game state to reflect taking a `Call` action.  
     /// 1. Sets trump to suit that is called
     /// 2. Sets current player to player left of dealer
+    /// 3. Sets calling_player to the current player
     fn perform_call_action(&mut self, action: Action) {
         let trump: Suit = match action {
             Action::CallH => Suit::Hearts,
@@ -240,6 +241,7 @@ impl EuchreGame {
             _ => {panic!("Invalid action to perform call action: {:?}", action)}
         };
         self.trump = Some(trump);
+        self.calling_player_id = Some(self.curr_player_id);
         self.curr_player_id = (self.dealer_id + 1) % 4;
     }
 
@@ -347,6 +349,7 @@ fn determine_dealer(deal_id: Option<u8>, gen: &mut ChaCha8Rng) -> u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rand::prelude::*;
 
     #[test]
     fn create_game() {
@@ -386,7 +389,11 @@ mod tests {
             let mut game: EuchreGame = EuchreGame::new(Some(0), i);
 
         while !game.is_over() {
-            let action = game.get_legal_actions()[0];
+            let options: Vec<Action> = game.get_legal_actions();
+            let action = match options.into_iter().choose(&mut thread_rng()) {
+                Some(i) => i,
+                None => {println!("{:?}", game.get_state()); return} ,
+            };
             let (_state, _player_id) = game.step(action);
         }
         assert!(game.get_rewards().unwrap().len() == 4);
