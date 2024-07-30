@@ -388,15 +388,15 @@ mod tests {
         for i in 0..100 {
             let mut game: EuchreGame = EuchreGame::new(Some(0), i);
 
-        while !game.is_over() {
-            let options: Vec<Action> = game.get_legal_actions();
-            let action = match options.into_iter().choose(&mut thread_rng()) {
-                Some(i) => i,
-                None => {println!("{:?}", game.get_state()); return} ,
-            };
-            let (_state, _player_id) = game.step(action);
-        }
-        assert!(game.get_rewards().unwrap().len() == 4);
+            while !game.is_over() {
+                let options: Vec<Action> = game.get_legal_actions();
+                let action = match options.into_iter().choose(&mut thread_rng()) {
+                    Some(i) => i,
+                    None => {println!("{:?}", game.get_state()); return} ,
+                };
+                let (_state, _player_id) = game.step(action);
+            }
+            assert!(game.get_rewards().unwrap().len() == 4);
         }
     }
 }
