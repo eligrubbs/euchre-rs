@@ -3,6 +3,7 @@ use crate::card::{Card, Suit};
 use crate::utils::FlippedChoice;
 use crate::utils::Action;
 
+#[derive(Debug)]
 /// A struct which represents the game state from the perspective of a certain player
 pub struct ScopedGameState {
     pub current_actor: u8,

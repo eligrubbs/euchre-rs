@@ -1,5 +1,5 @@
-use rand::Rng;
-use rand::prelude::ThreadRng;
+use rand::{Rng, SeedableRng};
+use rand_chacha::ChaCha8Rng;
 use scoped_state::ScopedGameState;
 
 use crate::player::Player;
@@ -26,17 +26,22 @@ pub struct EuchreGame {
     order: Vec<u8>,
     trump: Option<Suit>,
     led_suit: Option<Suit>,
+
+    _rng_gen: ChaCha8Rng,
 }
 
 impl EuchreGame {
 
     /// Sets up a new EuchreGame.
     pub fn new(
-            dealer_id: Option<u8>) -> EuchreGame {
+            dealer_id: Option<u8>, seed: u64) -> EuchreGame {
+        
+        let mut gen: ChaCha8Rng = ChaCha8Rng::seed_from_u64(seed);
 
-        let deal_id = determine_dealer(dealer_id);
+        let deal_id = determine_dealer(dealer_id, &mut gen);
         let curr_p_id = (deal_id + 1) % 4;
-        let mut dealer: Dealer = Dealer::new();
+        let mut dealer: Dealer = Dealer::new(&mut gen);
+        dealer.shuffle();
 
         let mut players: Vec<Player> = vec![Player::new(0), 
                                         Player::new(1),
@@ -63,6 +68,8 @@ impl EuchreGame {
             order: Self::order_starting_from(curr_p_id),
             trump: None,
             led_suit: None,
+
+            _rng_gen: gen,
         }
     }
 
@@ -76,7 +83,7 @@ impl EuchreGame {
 
         ScopedGameState {
             current_actor: self.curr_player_id,
-            hand: self.imm_player_ref(self.curr_player_id).hand_ref(),
+            hand: self.imm_player_ref(self.curr_player_id).hand_clone(),
             calling_actor: self.calling_player_id,
             dealer_actor: self.dealer_id,
             flipped_card: self.flipped_card,
@@ -123,11 +130,11 @@ impl EuchreGame {
     /// Return all actions that the current player may
     /// select based on the game state.
     pub fn get_legal_actions(&self) -> Vec<Action> {
-        let hand: Vec<Card> = self.imm_player_ref(self.curr_player_id).hand_ref();
+        let hand: Vec<Card> = self.imm_player_ref(self.curr_player_id).hand_clone();
         let mut actions: Vec<Action> = vec![];
         if hand.len() == 6 { // dealer must discard
             actions = hand.iter().map(|x| Action::card_to_action(x, false)).collect();
-        
+
         } else if self.trump.is_none() { // deciding trump
             if self.flipped_choice.is_none() { // flipped_card available
                 actions = vec![Action::Pick, Action::Pass];
@@ -202,8 +209,9 @@ impl EuchreGame {
     /// 4. `flipped_choice` is set to `PickedUp`
     /// 5. The player who ordered up trump is recorded
     fn perform_pick_action(&mut self) {
-        let dealer_player = self.player_ref(self.dealer_id);
-        dealer_player.hand_ref().push(self.flipped_card);
+        let flipped: Card = self.flipped_card.clone();
+        let dealer_player: &mut Player = self.player_ref(self.dealer_id);
+        dealer_player.hand_ref().push(flipped);
         self.trump = Some(self.flipped_card.suit());
         self.flipped_choice = Some(FlippedChoice::PickedUp);
         self.calling_player_id = Some(self.curr_player_id);
@@ -241,7 +249,7 @@ impl EuchreGame {
     fn perform_discard_action(&mut self, action: Action) {
         let card_to_drop: Card = Action::action_to_card(action).unwrap();
     
-        let player: &Player = self.player_ref(self.curr_player_id);
+        let player: &mut Player = self.player_ref(self.curr_player_id);
         for (i, card) in player.hand_ref().iter().enumerate() {
             if card == &card_to_drop {
                 player.hand_ref().remove(i);
@@ -260,7 +268,7 @@ impl EuchreGame {
     fn perform_play_card(&mut self, action: Action) {
         let card_to_play: Card = Action::action_to_card(action).unwrap();
 
-        let player: &Player = self.player_ref(self.curr_player_id);
+        let player: &mut Player = self.player_ref(self.curr_player_id);
         for (i, card) in player.hand_ref().iter().enumerate() {
             if card == &card_to_play {
                 player.hand_ref().remove(i);
@@ -308,7 +316,7 @@ impl EuchreGame {
     /// 1. If the current player has no cards in their hand
     /// 2. Assumes that this function is only called at the end of a trick
     fn decide_is_over(&mut self) {
-        if self.imm_player_ref(self.curr_player_id).hand_ref().len() == 0 {
+        if self.imm_player_ref(self.curr_player_id).hand_clone().len() == 0 {
             self.is_over = true;
             self.scores = Some(self.judger.judge_round(
                                         self.get_player_tricks(),
@@ -327,13 +335,12 @@ impl EuchreGame {
 
 /// Either return the passed in `Some(u8)`, panicing if greater than 3, 
 /// or randomly choose a number on the range \[0,3\]
-fn determine_dealer(deal_id: Option<u8>) -> u8 {
+fn determine_dealer(deal_id: Option<u8>, gen: &mut ChaCha8Rng) -> u8 {
     if let Some(num) = deal_id {
         assert!(num < 4);
         return num
     }
-    let mut rng: ThreadRng = rand::thread_rng();
-    rng.gen_range(0..=3)
+    gen.gen_range(0..=3)
 }
 
 
@@ -343,20 +350,38 @@ mod tests {
 
     #[test]
     fn create_game() {
-        let game: EuchreGame = EuchreGame::new(Some(0));
+        let game: EuchreGame = EuchreGame::new(Some(0), 10);
     
         assert!(!game.is_over())
     }
 
     #[test]
     fn get_dealer_valid_dealer() {
-        assert_eq!(2, determine_dealer(Some(2)));
-        assert!(determine_dealer(None) < 4);
+        let mut gen: ChaCha8Rng = ChaCha8Rng::seed_from_u64(10);
+        assert_eq!(2, determine_dealer(Some(2), &mut gen));
+        assert!(determine_dealer(None, &mut gen) < 4);
     }
 
     #[test]
     #[should_panic]
     fn get_dealer_panic_on_invalid_dealer() {
-        determine_dealer(Some(4));
+        let mut gen: ChaCha8Rng = ChaCha8Rng::seed_from_u64(10);
+        determine_dealer(Some(4), &mut gen);
+    }
+
+    #[test]
+    fn specific_playthrough() {
+        let mut game: EuchreGame = EuchreGame::new(Some(0), 10);
+
+        let mut action_stack: Vec<Action> = vec![Action::Pass, Action::Pick];
+
+        let _state = game.get_state();
+        println!("{:?}",_state);
+        while action_stack.len() > 0 {
+            let action: Action = action_stack.remove(0);
+            let (_state, _player) = game.step(action);
+            println!("{:?}", _state);
+        }
+        assert!(game.get_rewards().unwrap().len() == 4);
     }
 }

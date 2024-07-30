@@ -32,10 +32,15 @@ impl Player {
     }
 
     /// Return clone of players hand
-    pub fn hand_ref(&self) -> Vec<Card> {
+    pub fn hand_clone(&self) -> Vec<Card> {
         let mut clone: Vec<Card> = vec![Card::new(crate::card::Suit::Clubs, crate::card::Rank::Ace); self.hand.len()];
         clone.clone_from_slice(&self.hand[0..]);
         clone
+    }
+
+    /// Return a mutable reference of players hand
+    pub fn hand_ref(&mut self) -> &mut Vec<Card> {
+        &mut self.hand
     }
 }
 

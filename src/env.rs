@@ -14,7 +14,7 @@ impl EuchreEnv {
             panic!("Can only play euchre with exactly 4 players");
         }
 
-        let game = EuchreGame::new(None);
+        let game = EuchreGame::new(None, 10);
         EuchreEnv {
             game: game,
             agents: agents,

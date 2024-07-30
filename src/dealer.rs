@@ -1,22 +1,25 @@
+use rand_chacha::ChaCha8Rng;
 use strum::IntoEnumIterator;
 
 use crate::card::{Card, Suit, Rank};
 use crate::player::Player;
 use rand::seq::SliceRandom;
 
-pub struct Dealer {
+pub struct Dealer<'a> {
     euchre_deck: Vec<Card>,
+    gen: &'a mut ChaCha8Rng,
 }
 
-impl Dealer {
-    pub fn new() -> Dealer {
+impl<'a> Dealer<'a> {
+    pub fn new (gen: &'a mut ChaCha8Rng) -> Dealer {
         Dealer {
-            euchre_deck: init_euchre_deck(),
+            euchre_deck: Self::init_euchre_deck(),
+            gen: gen,
         }
     }
 
     pub fn shuffle(&mut self) {
-        self.euchre_deck.shuffle(&mut rand::thread_rng());
+        self.euchre_deck.shuffle(&mut self.gen);
     }
 
     pub fn deal_cards(&mut self, player: &mut Player) {
@@ -28,15 +31,38 @@ impl Dealer {
         self.euchre_deck.pop().unwrap()
     }
 
+    fn init_euchre_deck() -> Vec<Card> {
+        let mut result:Vec<Card> = vec![];
+        for d_suit in Suit::iter() {
+            for d_rank in Rank::iter() {
+                result.push(Card::new(d_suit, d_rank));
+            }
+        }
+        result
+    }
 }
 
 
-fn init_euchre_deck() -> Vec<Card> {
-    let mut result:Vec<Card> = vec![];
-    for d_suit in Suit::iter() {
-        for d_rank in Rank::iter() {
-            result.push(Card::new(d_suit, d_rank));
-        }
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::SeedableRng;
+
+    #[test]
+    fn init_dealer() {
+
+        let mut gen: ChaCha8Rng = ChaCha8Rng::seed_from_u64(1);
+        let mut dealer: Dealer = Dealer::new(&mut gen);
+
+        assert_eq!(dealer.flip_top_card(), Card::new(Suit::Spades, Rank::Ace));
     }
-    result
+
+    #[test]
+    fn shuffle_is_rdm() {
+        let mut gen: ChaCha8Rng = ChaCha8Rng::seed_from_u64(1);
+        let mut dealer: Dealer = Dealer::new(&mut gen);
+
+        dealer.shuffle();
+        assert_eq!(dealer.flip_top_card(), Card::new(Suit::Clubs, Rank::Ten));
+    }
 }

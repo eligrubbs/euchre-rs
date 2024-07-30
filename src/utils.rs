@@ -130,7 +130,7 @@ impl Action {
 }
 
 
-#[derive(Copy, Clone, Eq, PartialEq)]
+#[derive(Copy, Clone, Eq, PartialEq, Debug)]
 pub enum FlippedChoice {
     PickedUp,
     TurnedDown,
