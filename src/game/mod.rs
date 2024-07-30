@@ -284,10 +284,10 @@ impl EuchreGame {
                 } else {
                     Some(card_to_play.suit())
                 };
-        } else {
-            self.center.as_mut().unwrap().push(card_to_play);
         }
-    
+
+        self.center.as_mut().unwrap().push(card_to_play);
+
         self.previous_played[usize::from(self.curr_player_id)].push(card_to_play);
 
         self.increment_player();
@@ -370,18 +370,26 @@ mod tests {
     }
 
     #[test]
-    fn specific_playthrough() {
+    fn random_playthrough() {
         let mut game: EuchreGame = EuchreGame::new(Some(0), 10);
 
-        let mut action_stack: Vec<Action> = vec![Action::Pass, Action::Pick];
-
-        let _state = game.get_state();
-        println!("{:?}",_state);
-        while action_stack.len() > 0 {
-            let action: Action = action_stack.remove(0);
-            let (_state, _player) = game.step(action);
-            println!("{:?}", _state);
+        while !game.is_over() {
+            let action = game.get_legal_actions()[0];
+            let (_state, _player_id) = game.step(action);
         }
         assert!(game.get_rewards().unwrap().len() == 4);
+    }
+
+    #[test]
+    fn rdm_100_games() {
+        for i in 0..100 {
+            let mut game: EuchreGame = EuchreGame::new(Some(0), i);
+
+        while !game.is_over() {
+            let action = game.get_legal_actions()[0];
+            let (_state, _player_id) = game.step(action);
+        }
+        assert!(game.get_rewards().unwrap().len() == 4);
+        }
     }
 }
