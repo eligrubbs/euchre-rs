@@ -34,9 +34,9 @@ impl EuchreGame {
 
     /// Sets up a new EuchreGame.
     pub fn new(
-            dealer_id: Option<u8>, seed: u64) -> EuchreGame {
+            dealer_id: Option<u8>, seed: Option<u64>) -> EuchreGame {
         
-        let mut gen: ChaCha8Rng = ChaCha8Rng::seed_from_u64(seed);
+        let mut gen: ChaCha8Rng = Self::get_rdm_gen(seed);
 
         let deal_id = determine_dealer(dealer_id, &mut gen);
         let curr_p_id = (deal_id + 1) % 4;
@@ -75,6 +75,14 @@ impl EuchreGame {
 
     pub fn is_over(&self) -> bool {
         self.is_over
+    }
+
+
+    fn get_rdm_gen(seed: Option<u64>) -> ChaCha8Rng {
+        match seed {
+            Some(num) => {ChaCha8Rng::seed_from_u64(num)},
+            None => {ChaCha8Rng::from_entropy()}
+        }
     }
 
     /// Get the current game state as the current player sees it.
@@ -353,7 +361,7 @@ mod tests {
 
     #[test]
     fn create_game() {
-        let game: EuchreGame = EuchreGame::new(Some(0), 10);
+        let game: EuchreGame = EuchreGame::new(Some(0), Some(10));
     
         assert!(!game.is_over())
     }
@@ -374,7 +382,7 @@ mod tests {
 
     #[test]
     fn random_playthrough() {
-        let mut game: EuchreGame = EuchreGame::new(Some(0), 10);
+        let mut game: EuchreGame = EuchreGame::new(Some(0), Some(10));
 
         while !game.is_over() {
             let action = game.get_legal_actions()[0];
@@ -386,7 +394,7 @@ mod tests {
     #[test]
     fn rdm_100_games() {
         for i in 0..100 {
-            let mut game: EuchreGame = EuchreGame::new(Some(0), i);
+            let mut game: EuchreGame = EuchreGame::new(Some(0), Some(i));
 
             while !game.is_over() {
                 let options: Vec<Action> = game.get_legal_actions();
