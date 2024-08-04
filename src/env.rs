@@ -14,7 +14,7 @@ impl EuchreEnv {
             panic!("Can only play euchre with exactly 4 players");
         }
 
-        let game = EuchreGame::new(None, 10);
+        let game = EuchreGame::new(None, Some(10));
         EuchreEnv {
             game: game,
             agents: agents,
@@ -25,6 +25,8 @@ impl EuchreEnv {
     /// 
     /// This function returns the rewards each player got at the end of the game.
     pub fn run(&mut self) -> Vec<u8> {
+        self.reset();
+
         let mut state: ScopedGameState = self.game.get_state();
         let mut curr_player = state.current_actor;
         while !self.game.is_over() {
@@ -32,6 +34,12 @@ impl EuchreEnv {
             (state, curr_player) = self.game.step(act);
         }
         self.game.get_rewards().unwrap()
+    }
+
+    /// Create a new EuchreGame
+    /// Game is created with random seed.
+    pub fn reset(&mut self) {
+        self.game = EuchreGame::new(None, None);
     }
 
 }
