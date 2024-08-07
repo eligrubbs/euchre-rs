@@ -1,6 +1,5 @@
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
-use scoped_state::ScopedGameState;
 
 use crate::player::Player;
 use crate::card::{Card, Suit};
@@ -9,6 +8,7 @@ use crate::dealer::Dealer;
 use crate::judger::Judger;
 
 pub mod scoped_state;
+use self::scoped_state::ScopedGameState;
 
 pub struct EuchreGame {
     is_over: bool,
