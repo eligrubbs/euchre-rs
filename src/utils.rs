@@ -62,7 +62,7 @@ pub enum Action {
 }
 
 impl Action {
-    /// Map all <Card>Play and <Card>Discard actions to the <Card> they refer to.
+    /// Map all \<Card\>Play and \<Card\>Discard actions to the \<Card\> they refer to.
     pub fn action_to_card(action: Action) -> Result<Card, String> {
         // the number % 6 returns the rank
         // 0 1 2 3 4 5
