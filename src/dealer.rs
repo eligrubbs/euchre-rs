@@ -34,7 +34,13 @@ impl<'a> Dealer<'a> {
     fn init_euchre_deck() -> Vec<Card> {
         let mut result:Vec<Card> = vec![];
         for d_suit in Suit::iter() {
+            if d_suit == Suit::Unset {
+                continue;
+            }
             for d_rank in Rank::iter() {
+                if d_rank == Rank::Unset {
+                    continue;
+                }
                 result.push(Card::new(d_suit, d_rank));
             }
         }

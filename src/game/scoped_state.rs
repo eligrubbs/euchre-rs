@@ -1,4 +1,3 @@
-
 use crate::card::{Card, Suit};
 use crate::utils::FlippedChoice;
 use crate::utils::Action;
