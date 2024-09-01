@@ -30,7 +30,7 @@ impl EuchreEnv {
         let mut state: ScopedGameState = self.game.get_state();
         let mut curr_player = state.current_actor;
         while !self.game.is_over() {
-            let act: crate::utils::Action = self.agents.get(usize::from(curr_player)).unwrap().decide_action(&state);
+            let act: crate::utils::Action = self.agents.get_mut(usize::from(curr_player)).unwrap().decide_action(&state);
             (state, curr_player) = self.game.step(act);
         }
         self.game.get_rewards().unwrap()

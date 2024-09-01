@@ -6,5 +6,5 @@ pub mod random;
 pub mod human;
 
 pub trait Agent {
-    fn decide_action(&self, state: &ScopedGameState) -> Action;
+    fn decide_action(&mut self, state: &ScopedGameState) -> Action;
 }
