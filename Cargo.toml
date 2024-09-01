@@ -1,5 +1,5 @@
 [package]
-name = "euchre"
+name = "euchre_rs"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
+rand_chacha = "0.3.1"
 strum = "0.26.3"
 strum_macros = "0.26.4"

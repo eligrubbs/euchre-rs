@@ -1,58 +1,78 @@
-use std::fmt;
 use crate::card::Card;
 
-pub enum Strategy {
-    Random,
-    Human,
-}
-
-impl fmt::Display for Strategy {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Self::Random => write!(f, "Random"),
-            Self::Human => write!(f, "Human"),
-        }
-    }
-}
-
-
 pub struct Player {
-    pub strategy: Strategy,
-    pub hand: Vec<Card>,
-    id: u8,
-    partner_id: u8,
-}
-
-impl fmt::Display for Player {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{} Player: {{ ", self.strategy).ok();
-        for card in &self.hand {
-            write!(f, "{}, ", card).ok();
-        }
-        write!(f, "}}")
-    }
+    player_id: u8,
+    tricks: u8,
+    hand: Vec<Card>,
 }
 
 impl Player {
-    pub fn new(strat: Strategy, hand: Vec<Card>, id: u8) -> Player{
+    pub fn new(p_id: u8) -> Player {
         Player {
-            strategy: strat,
-            hand: hand,
-            id: id,
-            partner_id: (id + 2) % 4
+            player_id: p_id,
+            tricks: 0,
+            hand: vec![],
         }
-
     }
 
-    pub fn get_id(&self) -> &u8 {
-        &self.id
+    pub fn add_cards(&mut self, cards: &mut Vec<Card>) {
+        self.hand.append(cards)
     }
 
-    pub fn get_partner_id(&self) -> &u8 {
-        &self.partner_id
+    pub fn award_trick(&mut self) {
+        self.tricks += 1;
     }
 
-    pub fn get_strategy(&self) -> &Strategy{
-        &self.strategy
+    pub fn get_tricks(&self) -> u8 {
+        self.tricks
+    }
+
+    pub fn get_id(&self) -> u8 {
+        self.player_id
+    }
+
+    /// Return clone of players hand
+    pub fn hand_clone(&self) -> Vec<Card> {
+        let mut clone: Vec<Card> = vec![Card::new(crate::card::Suit::Clubs, crate::card::Rank::Ace); self.hand.len()];
+        clone.clone_from_slice(&self.hand[0..]);
+        clone
+    }
+
+    /// Return a mutable reference of players hand
+    pub fn hand_ref(&mut self) -> &mut Vec<Card> {
+        &mut self.hand
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn make_player() {
+        let play: Player = Player::new(2);
+        let real_id: u8 = 2;
+        assert_eq!(play.player_id, real_id)
+    }
+
+    #[test]
+    fn award_trick() {
+        let mut play: Player = Player::new(2);
+        play.award_trick();
+        assert_eq!(1, play.tricks);
+    }
+
+    #[test]
+    fn get_tricks_won() {
+        let mut play: Player = Player::new(3);
+        assert_eq!(play.get_tricks(), 0);
+        play.tricks = 10;
+        assert_eq!(play.get_tricks(), 10);
+    }
+
+    #[test]
+    fn get_id() {
+        let play: Player = Player::new(3);
+        assert_eq!(play.get_id(), 3);
     }
 }

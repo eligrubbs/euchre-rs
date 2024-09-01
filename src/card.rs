@@ -1,150 +1,125 @@
-use std::collections::HashMap;
-use std::slice::Iter;
-use std::fmt;
-use std::str::FromStr;
-use crate::game::Action;
-use self::Suit::*;
-use self::Rank::*;
+use strum_macros::EnumIter;
 
-#[derive(Clone)]
-pub struct Card {
-    pub suit: Suit,
-    pub rank: Rank,
-}
-
-impl fmt::Display for Card {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}{}", self.suit, self.rank)
-    }
-}
-
-
-/// Idea to iterate through options from: https://stackoverflow.com/a/21376984
-#[derive(Clone, PartialEq, Eq, Hash)]
-pub enum Suit {
-    Spades,
-    Clubs,
-    Hearts,
-    Diamonds
-}
-
-impl Suit {
-    pub fn iterator() -> Iter<'static, Suit> {
-        static SUITS: [Suit; 4] = [Spades, Clubs, Hearts, Diamonds];
-        SUITS.iter()
-    }
-}
-
-impl fmt::Display for Suit {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Suit::Spades => write!(f, "S"),
-            Suit::Clubs => write!(f, "C"),
-            Suit::Hearts => write!(f, "H"),
-            Suit::Diamonds => write!(f, "D")
-        }
-    }
-}
-
-
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, EnumIter)]
 pub enum Rank {
-    Nine,
-    Ten,
-    Jack,
-    Queen,
-    King,
-    Ace
+    Nine = 9,
+    Ten = 10,
+    Jack = 11,
+    Queen = 12,
+    King = 13,
+    Ace = 14,
+    /// Reserved for initializing decks, indicates that this card can be given any Rank
+    Unset = 0,
 }
 
-impl Rank {
-    pub fn iterator() -> Iter<'static, Rank> {
-        static RANKS: [Rank; 6] = [Nine, Ten, Jack, Queen, King, Ace];
-        RANKS.iter()
+#[derive(Debug, Copy, Clone, Eq, PartialEq, EnumIter)]
+pub enum Suit {
+    Diamonds,
+    Hearts,
+    Clubs,
+    Spades,
+    /// Reserved for initializng decks, indicates that this card can be given any Suit
+    Unset,
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub struct Card {
+    suit: Suit,
+    rank: Rank,
+}
+
+impl Card {
+    /// Creates new `Card` with specified suit and rank
+    pub fn new(suit: Suit, rank: Rank) -> Card {
+        Card {suit: suit, rank: rank}
     }
-}
 
-impl fmt::Display for Rank {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
-            Rank::Nine => write!(f, "9"),
-            Rank::Ten => write!(f, "T"),
-            Rank::Jack => write!(f, "J"),
-            Rank::Queen => write!(f, "Q"),
-            Rank::King => write!(f, "K"),
-            Rank::Ace => write!(f, "A"),
+    /// Returns a clone of this cards `Suit`
+    pub fn suit(&self) -> Suit {
+        self.suit.clone()
+    }
+
+    /// Returns a clone of this cards `Rank`
+    pub fn rank(&self) -> Rank {
+        self.rank.clone()
+    }
+
+    /// Returns whether this card is the left bower
+    /// given a trump suit
+    pub fn is_left(&self, trump: Suit) -> bool {
+        self == &Card::new(match trump {
+            Suit::Clubs => Suit::Spades,
+            Suit::Diamonds => Suit::Hearts,
+            Suit::Spades => Suit::Clubs,
+            Suit::Hearts => Suit::Diamonds,
+            Suit::Unset => panic!("Unset Suit should be impossible here."),
+        }, Rank::Jack)
+    }
+
+    /// Returns whether this card is the right bower
+    /// given a trump suit
+    pub fn is_right(&self, trump: Suit) -> bool {
+        self == &Card::new(trump, Rank::Jack)
+    }
+
+    /// Determines if `self` is lower than other, given trump.  
+    /// Assumes that `self` is the led_suit (remember the left's suit is trump).
+    pub fn is_lower(&self, trump: Suit, other: Card) -> bool {
+        let eff_suit: Suit = if self.is_left(trump) {trump} else {self.suit()};
+        let o_eff_suit: Suit = if other.is_left(trump) {trump} else {other.suit()};
+
+        if eff_suit == o_eff_suit {
+            // If here, and both bowers are being compared, there will be an equality on rank
+            // so, looking at self.is_right will break that tie
+            if self.rank() > other.rank() || self.is_right(trump) {
+                false
+            } else {
+                true
+            }
+        } else if o_eff_suit == trump {
+            true
+        } else {
+            false
         }
     }
 }
-
-pub trait EuchreCard {
-    fn is_left(&self, trump: &Suit) -> bool;
-    fn is_right(&self, trump: &Suit) -> bool;
-    fn call_action(&self) -> Action;
-    fn discard_action(&self) -> Action;
-    fn play_action(&self) -> Action;
-}
-
-impl EuchreCard for Card {
-    fn is_left(&self, trump: &Suit) -> bool {
-        let convert: HashMap<Suit, Suit> = HashMap::from([
-            (Suit::Diamonds, Suit::Hearts),
-            (Suit::Hearts, Suit::Diamonds),
-            (Suit::Clubs, Suit::Spades),
-            (Suit::Spades, Suit::Clubs),
-        ]);
-        self.rank == Rank::Jack && convert.get(&self.suit).unwrap() == trump
-    }
-
-    fn is_right(&self, trump: &Suit) -> bool {
-        self.suit == *trump && self.rank == Rank::Jack
-    }
-
-    fn call_action(&self) -> Action {
-        Action::from_str(format!("{}Call",self.to_string()).as_str()).unwrap()
-    }
-
-    fn discard_action(&self) -> Action {
-        Action::from_str(format!("{}Discard",self.to_string()).as_str()).unwrap()
-    }
-
-    fn play_action(&self) -> Action {
-        Action::from_str(self.to_string().as_str()).unwrap()
-    }
-}
-
 
 #[cfg(test)]
 mod tests {
-    use std::fmt::Write;
     use super::*;
 
-
     #[test]
-    fn print_suits() {
-        let mut result: String = String::new();
-        for suit in Suit::iterator() {
-            write!(result, "{}", suit).expect("Something wrong");
-        }
-        assert_eq!(result, "SCHD");
+    fn create_card() {
+        let card: Card = Card::new(Suit::Hearts, Rank::Ten);
+        assert_eq!(Suit::Hearts, card.suit());
+        assert_eq!(Rank::Ten, card.rank());
+
     }
 
     #[test]
-    fn print_ranks() {
-        let mut result: String = String::new();
-        for rank in Rank::iterator() {
-            write!(result, "{}", rank).expect("Something wrong");
-        }
-        assert_eq!(result, "9TJQKA");
+    fn is_left() {
+        assert!(Card::new(Suit::Clubs, Rank::Jack).is_left(Suit::Spades));
+        assert!(!Card::new(Suit::Clubs, Rank::Jack).is_left(Suit::Clubs));
+        assert!(!Card::new(Suit::Clubs, Rank::Nine).is_left(Suit::Spades));
+        assert!(!Card::new(Suit::Clubs, Rank::Jack).is_left(Suit::Diamonds));
     }
 
     #[test]
-    fn print_cards() {
-        for suit in Suit::iterator() {
-            for rank in Rank::iterator() {
-                let card: Card = Card {suit: suit.clone(), rank: rank.clone()};
-                assert_eq!(format!("{}{}", suit, rank), format!("{}", card));
-            }
-        }
+    fn is_right() {
+        assert!(!Card::new(Suit::Clubs, Rank::Jack).is_right(Suit::Spades));
+        assert!(Card::new(Suit::Clubs, Rank::Jack).is_right(Suit::Clubs));
+        assert!(!Card::new(Suit::Clubs, Rank::Nine).is_right(Suit::Spades));
+        assert!(!Card::new(Suit::Diamonds, Rank::Jack).is_right(Suit::Spades));
+    }
+
+    #[test]
+    fn is_lower_for_bowers() {
+        let trump: Suit = Suit::Spades;
+        let o_right: Card = Card::new(Suit::Spades, Rank::Jack);
+        let o_left: Card = Card::new(Suit::Clubs, Rank::Jack);
+        assert!(Card::new(Suit::Diamonds, Rank::Ace).is_lower(trump, o_right));
+        assert!(Card::new(Suit::Diamonds, Rank::Ace).is_lower(trump, o_left));
+        assert!(o_left.is_lower(trump, o_right));
+        assert!(!o_right.is_lower(trump, o_left));
     }
 }
