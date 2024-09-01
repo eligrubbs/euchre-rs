@@ -152,6 +152,7 @@ impl EuchreGame {
                     Suit::Diamonds => 1,
                     Suit::Spades => 2,
                     Suit::Clubs => 3,
+                    Suit::Unset => panic!("Unset Suit should be impossible here."),
                 };
                 let mut call_suits: Vec<Action> = vec![Action::CallH, Action::CallD, Action::CallS, Action::CallC];
                 call_suits.remove(usize::from(turned_down_suit));

@@ -45,7 +45,7 @@ impl HumanAgent {
 
 #[cfg(test)]
 mod tests {
-    use crate::{agent::random::RandomAgent, env::EuchreEnv};
+    use crate::{agent::random::RandomAgent, env::{EuchreEnv, config::GameConfig},};
 
     use super::*;
 
@@ -54,7 +54,8 @@ mod tests {
     #[test]
     fn get_human_action() {
         let players: Vec<Box<dyn Agent>> = vec![Box::new(HumanAgent{}), Box::new(RandomAgent{}), Box::new(RandomAgent{}), Box::new(RandomAgent{})];
-        let env: EuchreEnv = EuchreEnv::new(players);
+        let config: GameConfig = GameConfig::new(players, None, None);
+        let env: EuchreEnv = EuchreEnv::new(config);
         let _start: ScopedGameState = env.game.get_state();
         // let act: Action = env.agents[0].decide_action(&start);
 

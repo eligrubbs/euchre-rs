@@ -3,21 +3,21 @@ use crate::game::EuchreGame;
 use crate::agent::Agent;
 use crate::game::scoped_state::ScopedGameState;
 
+pub mod config;
+use self::config::GameConfig;
+
 pub struct EuchreEnv {
     pub game: EuchreGame,
     pub agents: Vec<Box<dyn Agent>>,
 }
 
 impl EuchreEnv {
-    pub fn new(agents: Vec<Box<dyn Agent>>) -> EuchreEnv {
-        if agents.len() != 4 {
-            panic!("Can only play euchre with exactly 4 players");
-        }
+    pub fn new(config: GameConfig) -> EuchreEnv {
 
-        let game = EuchreGame::new(None, Some(10));
+        let game = EuchreGame::new(config.dealer_id, config.seed);
         EuchreEnv {
             game: game,
-            agents: agents,
+            agents: config.agents,
         }
     }
 
@@ -45,6 +45,7 @@ impl EuchreEnv {
 }
 
 
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -56,8 +57,9 @@ mod tests {
                                                 Box::new(RandomAgent{}),
                                                 Box::new(RandomAgent{}),
                                                 Box::new(RandomAgent{})];
-        let mut env: EuchreEnv = EuchreEnv::new(players);
-        let rewards = env.run();
+        let config: GameConfig = GameConfig::new(players, None, None);
+        let mut env: EuchreEnv = EuchreEnv::new(config);
+        let rewards: Vec<u8> = env.run();
         print!("{:?}", rewards);
         assert!(4 == rewards.len())
     }

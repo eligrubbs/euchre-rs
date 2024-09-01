@@ -7,7 +7,9 @@ pub enum Rank {
     Jack = 11,
     Queen = 12,
     King = 13,
-    Ace = 14
+    Ace = 14,
+    /// Reserved for initializing decks, indicates that this card can be given any Rank
+    Unset = 0,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, EnumIter)]
@@ -15,7 +17,9 @@ pub enum Suit {
     Diamonds,
     Hearts,
     Clubs,
-    Spades
+    Spades,
+    /// Reserved for initializng decks, indicates that this card can be given any Suit
+    Unset,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -48,6 +52,7 @@ impl Card {
             Suit::Diamonds => Suit::Hearts,
             Suit::Spades => Suit::Clubs,
             Suit::Hearts => Suit::Diamonds,
+            Suit::Unset => panic!("Unset Suit should be impossible here."),
         }, Rank::Jack)
     }
 

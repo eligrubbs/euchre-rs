@@ -105,6 +105,7 @@ impl Action {
             Suit::Diamonds => 2,
             Suit::Spades => 3,
             Suit::Clubs => 4,
+            Suit::Unset => panic!("Unset Suit should be impossible here."),
         };
         let rank_num: u8 = match card.rank() {
             Rank::Ace => 0,
@@ -113,6 +114,7 @@ impl Action {
             Rank::Jack => 3,
             Rank::Ten => 4,
             Rank::Nine => 5,
+            Rank::Unset => panic!("Unset Rank should be impossible here."),
         };
         let discard_offset: u8 = if is_play {0} else {24};
         let num: u8 = rank_num + (suit_num * 6) + discard_offset;
