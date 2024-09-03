@@ -1,8 +1,7 @@
-
 use crate::game::EuchreGame;
 use crate::agent::Agent;
 use crate::game::scoped_state::ScopedGameState;
-use crate::utils::Action;
+use crate::action::Action;
 
 pub mod config;
 use self::config::GameConfig;
@@ -37,7 +36,7 @@ impl EuchreEnv {
         let mut curr_player = state.current_actor;
         while !self.game.is_over() {
             self.log_important_game_info(&state);
-            let act: crate::utils::Action = self.config.agents.get_mut(usize::from(curr_player)).unwrap().decide_action(&state);
+            let act: crate::action::Action = self.config.agents.get_mut(usize::from(curr_player)).unwrap().decide_action(&state);
             self.record_action((curr_player, act));
             (state, curr_player) = self.game.step(act);
         }
@@ -95,10 +94,10 @@ mod tests {
 
     #[test]
     fn run_game() {
-        let players: Vec<Box<dyn Agent>> = vec![Box::new(RandomAgent{}),
-                                                Box::new(RandomAgent{}),
-                                                Box::new(RandomAgent{}),
-                                                Box::new(RandomAgent{})];
+        let players: Vec<Box<dyn Agent>> = vec![Box::new(RandomAgent::new(None)),
+                                                Box::new(RandomAgent::new(None)),
+                                                Box::new(RandomAgent::new(None)),
+                                                Box::new(RandomAgent::new(None))];
         let config: GameConfig = GameConfig::new(players, None, None, false);
         let mut env: EuchreEnv = EuchreEnv::new(config);
         let rewards: Vec<u8> = env.run();

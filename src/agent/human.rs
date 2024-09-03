@@ -2,7 +2,7 @@ use std::io::{stdin, stdout, BufRead, StdinLock, Write};
 use std::str::FromStr;
 
 use crate::game::scoped_state::ScopedGameState;
-use crate::utils::Action;
+use crate::action::Action;
 use crate::agent::Agent;
 
 pub struct HumanAgent<R>
@@ -95,9 +95,9 @@ mod tests {
     fn get_human_action() {
         let act_cursor:Cursor<&str> = Cursor::new("pICk\n");
         let players: Vec<Box<dyn Agent>> = vec![Box::new(HumanAgent::new(act_cursor)),
-                                                Box::new(RandomAgent{}),
-                                                Box::new(RandomAgent{}),
-                                                Box::new(RandomAgent{})];
+                                                Box::new(RandomAgent::new(None)),
+                                                Box::new(RandomAgent::new(None)),
+                                                Box::new(RandomAgent::new(None))];
         let config: GameConfig = GameConfig::new(players, None, None, false);
         let mut env: EuchreEnv = EuchreEnv::new(config);
         let start: ScopedGameState = env.game.get_state();
