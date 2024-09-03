@@ -1,6 +1,6 @@
 use crate::card::{Card, Suit};
-use crate::utils::FlippedChoice;
-use crate::utils::Action;
+use crate::action::FlippedChoice;
+use crate::action::Action;
 
 #[derive(Debug)]
 /// A struct which represents the game state from the perspective of a certain player

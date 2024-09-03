@@ -1,11 +1,12 @@
-use rand::{Rng, SeedableRng};
+use rand::Rng;
 use rand_chacha::ChaCha8Rng;
 
 use crate::player::Player;
 use crate::card::{Card, Suit};
-use crate::utils::{Action, FlippedChoice};
+use crate::action::{Action, FlippedChoice};
 use crate::dealer::Dealer;
 use crate::judger::Judger;
+use crate::utils::get_rdm_gen;
 
 pub mod scoped_state;
 use self::scoped_state::ScopedGameState;
@@ -34,9 +35,11 @@ impl EuchreGame {
 
     /// Sets up a new EuchreGame.
     pub fn new(
-            dealer_id: Option<u8>, seed: Option<u64>) -> EuchreGame {
-        
-        let mut gen: ChaCha8Rng = Self::get_rdm_gen(seed);
+            dealer_id: Option<u8>,
+            seed: Option<u64>,
+        ) -> EuchreGame {
+
+        let mut gen: ChaCha8Rng = get_rdm_gen(seed);
 
         let deal_id = determine_dealer(dealer_id, &mut gen);
         let curr_p_id = (deal_id + 1) % 4;
@@ -75,14 +78,6 @@ impl EuchreGame {
 
     pub fn is_over(&self) -> bool {
         self.is_over
-    }
-
-
-    fn get_rdm_gen(seed: Option<u64>) -> ChaCha8Rng {
-        match seed {
-            Some(num) => {ChaCha8Rng::seed_from_u64(num)},
-            None => {ChaCha8Rng::from_entropy()}
-        }
     }
 
     /// Get the current game state as the current player sees it.
