@@ -1,4 +1,4 @@
-use std::io::BufRead;
+use std::io::{BufRead,stdout, Write};
 use std::str::FromStr;
 
 use crate::game::scoped_state::ScopedGameState;
@@ -48,8 +48,7 @@ where R: BufRead {
     pub fn get_input(&mut self) -> String
     {
         let mut s: String=String::new();
-        // let _=stdout().flush();
-        println!("inside test");
+        let _ = stdout().flush();
         self.reader.read_line(&mut s).expect("Did not enter a correct string");
         if let Some('\n')=s.chars().next_back() {
             s.pop();
@@ -72,7 +71,10 @@ mod tests {
     #[test]
     fn get_human_action() {
         let act_cursor:Cursor<&str> = Cursor::new("pICk\n");
-        let players: Vec<Box<dyn Agent>> = vec![Box::new(HumanAgent::new(act_cursor)), Box::new(RandomAgent{}), Box::new(RandomAgent{}), Box::new(RandomAgent{})];
+        let players: Vec<Box<dyn Agent>> = vec![Box::new(HumanAgent::new(act_cursor)),
+                                                Box::new(RandomAgent{}),
+                                                Box::new(RandomAgent{}),
+                                                Box::new(RandomAgent{})];
         let config: GameConfig = GameConfig::new(players, None, None);
         let mut env: EuchreEnv = EuchreEnv::new(config);
         let start: ScopedGameState = env.game.get_state();
