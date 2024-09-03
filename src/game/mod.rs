@@ -369,7 +369,7 @@ mod tests {
 
     #[test]
     fn create_game() {
-        let game: EuchreGame = EuchreGame::new(Some(0), Some(10));
+        let game: EuchreGame = EuchreGame::new(Some(0), Some(10), false);
     
         assert!(!game.is_over())
     }
@@ -390,7 +390,7 @@ mod tests {
 
     #[test]
     fn random_playthrough() {
-        let mut game: EuchreGame = EuchreGame::new(Some(0), Some(10));
+        let mut game: EuchreGame = EuchreGame::new(Some(0), Some(10), false);
 
         while !game.is_over() {
             let action = game.get_legal_actions()[0];
@@ -402,7 +402,7 @@ mod tests {
     #[test]
     fn rdm_100_games() {
         for i in 0..100 {
-            let mut game: EuchreGame = EuchreGame::new(Some(0), Some(i));
+            let mut game: EuchreGame = EuchreGame::new(Some(0), Some(i), false);
 
             while !game.is_over() {
                 let options: Vec<Action> = game.get_legal_actions();

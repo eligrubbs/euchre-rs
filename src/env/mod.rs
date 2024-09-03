@@ -8,7 +8,7 @@ use self::config::GameConfig;
 
 pub struct EuchreEnv {
     pub game: EuchreGame,
-    pub agents: Vec<Box<dyn Agent>>,
+    pub config: GameConfig,
 }
 
 impl EuchreEnv {
@@ -19,7 +19,7 @@ impl EuchreEnv {
                                                config.verbose);
         EuchreEnv {
             game: game,
-            agents: config.agents,
+            config: config,
         }
     }
 
@@ -32,7 +32,7 @@ impl EuchreEnv {
         let mut state: ScopedGameState = self.game.get_state();
         let mut curr_player = state.current_actor;
         while !self.game.is_over() {
-            let act: crate::utils::Action = self.agents.get_mut(usize::from(curr_player)).unwrap().decide_action(&state);
+            let act: crate::utils::Action = self.config.agents.get_mut(usize::from(curr_player)).unwrap().decide_action(&state);
             (state, curr_player) = self.game.step(act);
         }
         self.game.get_rewards().unwrap()
@@ -41,7 +41,19 @@ impl EuchreEnv {
     /// Create a new EuchreGame
     /// Game is created with random seed.
     pub fn reset(&mut self) {
-        self.game = EuchreGame::new(None, None);
+        self.game = EuchreGame::new(None, None, false);
+    }
+
+    /// Returns a read only reference for the agent with index of `index`.  
+    /// Result will contain `None` if invalid index is passed.
+    pub fn get_agent(&self, index: usize) -> Option<&Box<dyn Agent>> {
+        self.config.agents.get(index)
+    }
+
+    /// Returns a mutable only reference for the agent with index of `index`.  
+    /// Result will contain `None` if invalid index is passed.
+    pub fn get_mut_agent(&mut self, index: usize) -> Option<&mut Box<dyn Agent>> {
+        self.config.agents.get_mut(index)
     }
 
 }

@@ -101,7 +101,7 @@ mod tests {
         let config: GameConfig = GameConfig::new(players, None, None, false);
         let mut env: EuchreEnv = EuchreEnv::new(config);
         let start: ScopedGameState = env.game.get_state();
-        let act: Action = env.agents[0].decide_action(&start);
+        let act: Action = env.get_mut_agent(0).unwrap().decide_action(&start);
 
         assert_eq!(act, Action::Pick);
 
