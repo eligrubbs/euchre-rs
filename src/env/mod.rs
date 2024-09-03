@@ -72,13 +72,7 @@ impl EuchreEnv {
         // TODO: log that it happened in some type of logger.
 
         if self.config.verbose {
-            if (record.1 as i32) < 30 || 
-               (self.action_history.last().is_some() && // should always be true if we're here. but you never know...
-               self.action_history.last().unwrap().0 == record.0) {
-                // don't print what was discarded unless you did it
-                println!("Player {}: {}", record.0, record.1);
-            }
-            
+            println!("Player {}: {}", record.0, record.1);
         }
     }
 
