@@ -18,7 +18,7 @@
                     "kind": "lib"
                 }
             },
-            "args": ["random_playthrough"],
+            "args": ["get_human_action"],
             "cwd": "${workspaceFolder}"
         }
     ]

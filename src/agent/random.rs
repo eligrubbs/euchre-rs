@@ -9,7 +9,7 @@ pub struct RandomAgent {
 }
 
 impl Agent for RandomAgent {
-    fn decide_action(&self, state: &ScopedGameState) -> Action {
+    fn decide_action(&mut self, state: &ScopedGameState) -> Action {
         let actions: &Vec<Action> = &state.legal_actions;
 
         actions.choose(&mut rand::thread_rng()).unwrap().clone()

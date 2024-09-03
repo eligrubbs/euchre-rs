@@ -5,59 +5,113 @@ use crate::card::{Card, Suit, Rank};
 
 #[derive(Debug, Eq, PartialEq, PartialOrd, Copy, Clone, EnumIter, Display, EnumString)]
 pub enum Action {
+    #[strum(ascii_case_insensitive)]
     Pass = 0,
+    #[strum(ascii_case_insensitive)]
     Pick = 1,
+    #[strum(ascii_case_insensitive)]
     CallH = 2,
+    #[strum(ascii_case_insensitive)]
     CallD = 3,
+    #[strum(ascii_case_insensitive)]
     CallS = 4,
+    #[strum(ascii_case_insensitive)]
     CallC = 5,
+    #[strum(ascii_case_insensitive)]
     HAPlay = 6,
+    #[strum(ascii_case_insensitive)]
     HKPlay = 7,
+    #[strum(ascii_case_insensitive)]
     HQPlay = 8,
+    #[strum(ascii_case_insensitive)]
     HJPlay = 9,
+    #[strum(ascii_case_insensitive)]
     HTPlay = 10,
+    #[strum(ascii_case_insensitive)]
     H9Play = 11,
+    #[strum(ascii_case_insensitive)]
     DAPlay = 12,
+    #[strum(ascii_case_insensitive)]
     DKPlay = 13,
+    #[strum(ascii_case_insensitive)]
     DQPlay = 14,
+    #[strum(ascii_case_insensitive)]
     DJPlay = 15,
+    #[strum(ascii_case_insensitive)]
     DTPlay = 16,
+    #[strum(ascii_case_insensitive)]
     D9Play = 17,
+    #[strum(ascii_case_insensitive)]
     SAPlay = 18,
+    #[strum(ascii_case_insensitive)]
     SKPlay = 19,
+    #[strum(ascii_case_insensitive)]
     SQPlay = 20,
+    #[strum(ascii_case_insensitive)]
     SJPlay = 21,
+    #[strum(ascii_case_insensitive)]
     STPlay = 22,
+    #[strum(ascii_case_insensitive)]
     S9Play = 23,
+    #[strum(ascii_case_insensitive)]
     CAPlay = 24,
+    #[strum(ascii_case_insensitive)]
     CKPlay = 25,
+    #[strum(ascii_case_insensitive)]
     CQPlay = 26,
+    #[strum(ascii_case_insensitive)]
     CJPlay = 27,
+    #[strum(ascii_case_insensitive)]
     CTPlay = 28,
+    #[strum(ascii_case_insensitive)]
     C9Play = 29,
+    #[strum(ascii_case_insensitive)]
     HADiscard = 30,
+    #[strum(ascii_case_insensitive)]
     HKDiscard = 31,
+    #[strum(ascii_case_insensitive)]
     HQDiscard = 32,
+    #[strum(ascii_case_insensitive)]
     HJDiscard = 33,
+    #[strum(ascii_case_insensitive)]
     HTDiscard = 34,
+    #[strum(ascii_case_insensitive)]
     H9Discard = 35,
+    #[strum(ascii_case_insensitive)]
     DADiscard = 36,
+    #[strum(ascii_case_insensitive)]
     DKDiscard = 37,
+    #[strum(ascii_case_insensitive)]
     DQDiscard = 38,
+    #[strum(ascii_case_insensitive)]
     DJDiscard = 39,
+    #[strum(ascii_case_insensitive)]
     DTDiscard = 40,
+    #[strum(ascii_case_insensitive)]
     D9Discard = 41,
+    #[strum(ascii_case_insensitive)]
     SADiscard = 42,
+    #[strum(ascii_case_insensitive)]
     SKDiscard = 43,
+    #[strum(ascii_case_insensitive)]
     SQDiscard = 44,
+    #[strum(ascii_case_insensitive)]
     SJDiscard = 45,
+    #[strum(ascii_case_insensitive)]
     STDiscard = 46,
+    #[strum(ascii_case_insensitive)]
     S9Discard = 47,
+    #[strum(ascii_case_insensitive)]
     CADiscard = 48,
+    #[strum(ascii_case_insensitive)]
     CKDiscard = 49,
+    #[strum(ascii_case_insensitive)]
     CQDiscard = 50,
+    #[strum(ascii_case_insensitive)]
     CJDiscard = 51,
+    #[strum(ascii_case_insensitive)]
     CTDiscard = 52,
+    #[strum(ascii_case_insensitive)]
     C9Discard = 53,
 }
 
@@ -141,6 +195,8 @@ pub enum FlippedChoice {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use super::*;
 
     #[test]
@@ -162,4 +218,10 @@ mod tests {
         assert_eq!(Action::action_to_card(Action::HADiscard).unwrap(),
         Action::action_to_card(Action::HAPlay).unwrap());
     }
+
+    #[test]
+    fn string_to_action() {
+        assert_eq!(Action::C9Play, Action::from_str("c9PlAy").unwrap());
+    }
+    
 }
