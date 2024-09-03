@@ -8,7 +8,7 @@ fn main() {
                                           Box::new(RandomAgent{}),
                                           Box::new(RandomAgent{})];
 
-    let config: GameConfig = GameConfig::new(agents, Some(0), Some(12));
+    let config: GameConfig = GameConfig::new(agents, Some(0), Some(12), false);
     let mut env: EuchreEnv = EuchreEnv::new(config);
     env.run();
 }   

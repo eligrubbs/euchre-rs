@@ -14,7 +14,9 @@ pub struct EuchreEnv {
 impl EuchreEnv {
     pub fn new(config: GameConfig) -> EuchreEnv {
 
-        let game = EuchreGame::new(config.dealer_id, config.seed);
+        let game: EuchreGame = EuchreGame::new(config.dealer_id,
+                                               config.seed,
+                                               config.verbose);
         EuchreEnv {
             game: game,
             agents: config.agents,
@@ -57,7 +59,7 @@ mod tests {
                                                 Box::new(RandomAgent{}),
                                                 Box::new(RandomAgent{}),
                                                 Box::new(RandomAgent{})];
-        let config: GameConfig = GameConfig::new(players, None, None);
+        let config: GameConfig = GameConfig::new(players, None, None, false);
         let mut env: EuchreEnv = EuchreEnv::new(config);
         let rewards: Vec<u8> = env.run();
         print!("{:?}", rewards);

@@ -98,7 +98,7 @@ mod tests {
                                                 Box::new(RandomAgent{}),
                                                 Box::new(RandomAgent{}),
                                                 Box::new(RandomAgent{})];
-        let config: GameConfig = GameConfig::new(players, None, None);
+        let config: GameConfig = GameConfig::new(players, None, None, false);
         let mut env: EuchreEnv = EuchreEnv::new(config);
         let start: ScopedGameState = env.game.get_state();
         let act: Action = env.agents[0].decide_action(&start);

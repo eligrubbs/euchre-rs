@@ -27,6 +27,8 @@ pub struct EuchreGame {
     trump: Option<Suit>,
     led_suit: Option<Suit>,
 
+    verbose: bool,
+
     _rng_gen: ChaCha8Rng,
 }
 
@@ -34,7 +36,10 @@ impl EuchreGame {
 
     /// Sets up a new EuchreGame.
     pub fn new(
-            dealer_id: Option<u8>, seed: Option<u64>) -> EuchreGame {
+            dealer_id: Option<u8>,
+            seed: Option<u64>,
+            verbose: bool,
+        ) -> EuchreGame {
         
         let mut gen: ChaCha8Rng = Self::get_rdm_gen(seed);
 
@@ -68,6 +73,8 @@ impl EuchreGame {
             order: Self::order_starting_from(curr_p_id),
             trump: None,
             led_suit: None,
+
+            verbose: verbose,
 
             _rng_gen: gen,
         }
