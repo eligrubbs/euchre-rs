@@ -1,10 +1,9 @@
-use std::io::stdin;
 use euchre_rs::env::{EuchreEnv, config::GameConfig};
 use euchre_rs::agent::{Agent, human::HumanAgent, random::RandomAgent};
 
 /// Play a euchre game as a human
 fn main() {
-    let agents:Vec<Box<dyn Agent>> = vec![Box::new(HumanAgent::new(stdin().lock())),
+    let agents:Vec<Box<dyn Agent>> = vec![Box::new(HumanAgent::default()),
                                           Box::new(RandomAgent{}),
                                           Box::new(RandomAgent{}),
                                           Box::new(RandomAgent{})];

@@ -1,9 +1,10 @@
 # euchre-rs
 Implementation of Euchre in Rust.
 
+### Setup
 
 ## As a first milestone:
-I want this implementation of Euchre to be a CLI game that you can play against. 
+- [X] I want this implementation of Euchre to be a CLI game that you can play against.
 
 ### Features:
 - I want the logs of the game to be dumped to a file called output.txt, if not specified.

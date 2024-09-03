@@ -1,4 +1,4 @@
-use std::io::{BufRead,stdout, Write};
+use std::io::{stdin, stdout, BufRead, StdinLock, Write};
 use std::str::FromStr;
 
 use crate::game::scoped_state::ScopedGameState;
@@ -34,9 +34,32 @@ impl<R: BufRead> Agent for HumanAgent<R> {
     }
 }
 
+// advice from: https://stackoverflow.com/questions/45253784/expected-type-parameter-found-struct
+impl HumanAgent<StdinLock<'static>> {
+
+    /// Create a `HumanAgent` object that gets input from `stdin`.
+    pub fn default() -> Self {
+        Self {
+            reader: stdin().lock()
+        }
+    }
+}
+
 impl<R> HumanAgent<R>
 where R: BufRead {
 
+    /// Creates a new `HumanAgent` with a specified reader.
+    /// If you just want to use stdin, use the `default` method instead.
+    /// 
+    /// ### Example
+    ///   
+    /// ```
+    /// use std::io::Cursor;
+    /// use euchre_rs::agent::human::HumanAgent;
+    /// 
+    /// let cursor: Cursor<&str> = Cursor::new("Words to Read\n");
+    /// let human = HumanAgent::new(cursor);
+    /// ```
     pub fn new(reader: R) -> Self
     {
         Self{
