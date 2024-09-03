@@ -38,10 +38,9 @@ impl EuchreEnv {
         self.game.get_rewards().unwrap()
     }
 
-    /// Create a new EuchreGame
-    /// Game is created with random seed.
+    /// Create a new EuchreGame re-using config information.  
     pub fn reset(&mut self) {
-        self.game = EuchreGame::new(None, None, false);
+        self.game = EuchreGame::new(self.config.dealer_id, self.config.seed, self.config.verbose);
     }
 
     /// Returns a read only reference for the agent with index of `index`.  
