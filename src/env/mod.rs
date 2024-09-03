@@ -16,7 +16,7 @@ impl EuchreEnv {
 
         let game: EuchreGame = EuchreGame::new(config.dealer_id,
                                                config.seed,
-                                               config.verbose);
+                                               );
         EuchreEnv {
             game: game,
             config: config,
@@ -40,7 +40,7 @@ impl EuchreEnv {
 
     /// Create a new EuchreGame re-using config information.  
     pub fn reset(&mut self) {
-        self.game = EuchreGame::new(self.config.dealer_id, self.config.seed, self.config.verbose);
+        self.game = EuchreGame::new(self.config.dealer_id, self.config.seed);
     }
 
     /// Returns a read only reference for the agent with index of `index`.  

@@ -27,8 +27,6 @@ pub struct EuchreGame {
     trump: Option<Suit>,
     led_suit: Option<Suit>,
 
-    verbose: bool,
-
     _rng_gen: ChaCha8Rng,
 }
 
@@ -38,7 +36,6 @@ impl EuchreGame {
     pub fn new(
             dealer_id: Option<u8>,
             seed: Option<u64>,
-            verbose: bool,
         ) -> EuchreGame {
         
         let mut gen: ChaCha8Rng = Self::get_rdm_gen(seed);
@@ -73,8 +70,6 @@ impl EuchreGame {
             order: Self::order_starting_from(curr_p_id),
             trump: None,
             led_suit: None,
-
-            verbose: verbose,
 
             _rng_gen: gen,
         }
@@ -369,7 +364,7 @@ mod tests {
 
     #[test]
     fn create_game() {
-        let game: EuchreGame = EuchreGame::new(Some(0), Some(10), false);
+        let game: EuchreGame = EuchreGame::new(Some(0), Some(10));
     
         assert!(!game.is_over())
     }
@@ -390,7 +385,7 @@ mod tests {
 
     #[test]
     fn random_playthrough() {
-        let mut game: EuchreGame = EuchreGame::new(Some(0), Some(10), false);
+        let mut game: EuchreGame = EuchreGame::new(Some(0), Some(10));
 
         while !game.is_over() {
             let action = game.get_legal_actions()[0];
@@ -402,7 +397,7 @@ mod tests {
     #[test]
     fn rdm_100_games() {
         for i in 0..100 {
-            let mut game: EuchreGame = EuchreGame::new(Some(0), Some(i), false);
+            let mut game: EuchreGame = EuchreGame::new(Some(0), Some(i));
 
             while !game.is_over() {
                 let options: Vec<Action> = game.get_legal_actions();
