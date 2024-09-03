@@ -1,7 +1,18 @@
 # euchre-rs
 Implementation of Euchre in Rust.
 
-### Setup
+## Speed of Simulation
+Below is a table of the time it takes to run a number of games between 4 players who each make their decisions randomly.
+Note: Make sure to compile the binary with the `--release` flag.
+
+
+|    Games   | Time to play (sec) |
+|  --------  |  ----------------  |
+|  10,000    |        0.131       |
+|  100,000   |        1.422       |
+|  500,000   |        6.247       |
+|  1,000,000 |        14.019      |
+
 
 ## As a first milestone:
 - [X] I want this implementation of Euchre to be a CLI game that you can play against.

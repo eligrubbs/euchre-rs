@@ -4,7 +4,7 @@ use euchre_rs::agent::{Agent, human::HumanAgent, random::RandomAgent};
 /// Play a euchre game as a human
 fn main() {
     // play_one_game();
-    time_to_play_x_games(600_000);
+    time_to_play_x_games(1_000_000);
 }   
 
 fn play_one_game() {
@@ -21,10 +21,10 @@ fn play_one_game() {
 
 /// Time to play `x` games.
 /// 
-/// If the time exceeds 2 minute, the function returns false.
+/// If the time exceeds 3 minutes, the function returns false.
 fn time_to_play_x_games(x: u64) -> bool {
     use std::time::Instant;
-    let max_runtime: u64 = 60 * 2;
+    let max_runtime: u64 = 60 * 3;
     let start: Instant = Instant::now();
 
     // Setup
