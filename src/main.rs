@@ -8,7 +8,8 @@ fn main() {
                                           Box::new(RandomAgent{}),
                                           Box::new(RandomAgent{})];
 
-    let config: GameConfig = GameConfig::new(agents, Some(0), Some(12), false);
+    let config: GameConfig = GameConfig::new(agents, Some(1), Some(12), true);
     let mut env: EuchreEnv = EuchreEnv::new(config);
-    env.run();
+    let results: Vec<u8> = env.run();
+    println!("Game score: {:?}", results);
 }   

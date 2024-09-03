@@ -1,24 +1,38 @@
-use strum_macros::EnumIter;
+use std::fmt;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, EnumIter)]
+use strum_macros::{EnumIter, Display};
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, EnumIter, Display)]
 pub enum Rank {
+    #[strum(to_string="9")]
     Nine = 9,
+    #[strum(to_string="T")]
     Ten = 10,
+    #[strum(to_string="J")]
     Jack = 11,
+    #[strum(to_string="Q")]
     Queen = 12,
+    #[strum(to_string="K")]
     King = 13,
+    #[strum(to_string="A")]
     Ace = 14,
     /// Reserved for initializing decks, indicates that this card can be given any Rank
+    #[strum(to_string="?")]
     Unset = 0,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, EnumIter)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, EnumIter, Display)]
 pub enum Suit {
+    #[strum(to_string="D")]
     Diamonds,
+    #[strum(to_string="H")]
     Hearts,
+    #[strum(to_string="C")]
     Clubs,
+    #[strum(to_string="S")]
     Spades,
     /// Reserved for initializng decks, indicates that this card can be given any Suit
+    #[strum(to_string="?")]
     Unset,
 }
 
@@ -84,6 +98,12 @@ impl Card {
     }
 }
 
+impl fmt::Display for Card {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}{}", self.suit, self.rank)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -121,5 +141,12 @@ mod tests {
         assert!(Card::new(Suit::Diamonds, Rank::Ace).is_lower(trump, o_left));
         assert!(o_left.is_lower(trump, o_right));
         assert!(!o_right.is_lower(trump, o_left));
+    }
+
+    #[test]
+    fn card_to_string() {
+        assert_eq!("??", format!("{}", Card::new(Suit::Unset, Rank::Unset)));
+        assert_eq!("SA", format!("{}", Card::new(Suit::Spades, Rank::Ace)));
+        assert_eq!("C9", format!("{}", Card::new(Suit::Clubs, Rank::Nine)));
     }
 }

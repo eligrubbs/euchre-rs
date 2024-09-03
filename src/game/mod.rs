@@ -37,7 +37,7 @@ impl EuchreGame {
             dealer_id: Option<u8>,
             seed: Option<u64>,
         ) -> EuchreGame {
-        
+
         let mut gen: ChaCha8Rng = Self::get_rdm_gen(seed);
 
         let deal_id = determine_dealer(dealer_id, &mut gen);
